@@ -47,18 +47,20 @@ export default function GameBoard({ room, playerId, roomCode, keywords, secretCo
       <div style={s.content}>
         {phase === 'cluing' && (
           <CluePhase
+            key={playerId}
             cr={cr}
             myTeam={myTeam}
+            playerId={playerId}
             amClueGiver={amClueGiver}
             secretCode={secretCode}
             keywords={keywords}
           />
         )}
         {phase === 'guessing' && (
-          <GuessPhase cr={cr} myTeam={myTeam} playerId={playerId} />
+          <GuessPhase key={playerId} cr={cr} myTeam={myTeam} playerId={playerId} />
         )}
         {phase === 'reveal' && (
-          <RevealPhase cr={cr} room={room} isHost={isHost} myTeam={myTeam} />
+          <RevealPhase cr={cr} room={room} isHost={isHost} myTeam={myTeam} playerId={playerId} />
         )}
         {phase === 'ended' && (
           <EndedPhase room={room} myTeam={myTeam} history={room.history} />

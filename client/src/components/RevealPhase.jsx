@@ -3,7 +3,7 @@ import socket from '../socket';
 
 const TEAM_COLORS = { white: '#e8e8e8', black: '#7ab4ff' };
 
-export default function RevealPhase({ cr, room, isHost, myTeam }) {
+export default function RevealPhase({ cr, room, isHost, myTeam, playerId }) {
   if (!cr?.results) return null;
 
   const { results } = cr;
@@ -52,7 +52,7 @@ export default function RevealPhase({ cr, room, isHost, myTeam }) {
       </div>
 
       {isHost && (
-        <button style={s.nextBtn} onClick={() => socket.emit('game:nextRound')}>
+        <button style={s.nextBtn} onClick={() => socket.emit('game:nextRound', { playerId })}>
           Next Round →
         </button>
       )}

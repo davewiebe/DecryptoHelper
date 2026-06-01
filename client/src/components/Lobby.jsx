@@ -18,11 +18,11 @@ export default function Lobby({ room, playerId, onLeave }) {
   const blackPlayers = room.players.filter((p) => p.team === 'black');
   const unassigned = room.players.filter((p) => !p.team);
 
-  const joinTeam = (team) => socket.emit('room:setTeam', { team });
-  const leaveTeam = () => socket.emit('room:setTeam', { team: null });
+  const joinTeam = (team) => socket.emit('room:setTeam', { playerId, team });
+  const leaveTeam = () => socket.emit('room:setTeam', { playerId, team: null });
 
   const saveKeywords = (team) => {
-    socket.emit('room:setKeywords', { team, keywords: keywords[team] });
+    socket.emit('room:setKeywords', { playerId, team, keywords: keywords[team] });
     setEditing(null);
   };
 
@@ -31,7 +31,7 @@ export default function Lobby({ room, playerId, onLeave }) {
     whitePlayers.length > 0 &&
     blackPlayers.length > 0;
 
-  const start = () => socket.emit('room:start');
+  const start = () => socket.emit('room:start', { playerId });
 
   return (
     <div style={s.page}>

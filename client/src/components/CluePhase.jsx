@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import socket from '../socket';
 
-export default function CluePhase({ cr, myTeam, amClueGiver, secretCode, keywords }) {
+export default function CluePhase({ cr, myTeam, playerId, amClueGiver, secretCode, keywords }) {
   const [clues, setClues] = useState(['', '', '']);
   const [submitted, setSubmitted] = useState(false);
 
@@ -11,7 +11,7 @@ export default function CluePhase({ cr, myTeam, amClueGiver, secretCode, keyword
 
   const submit = () => {
     if (clues.some((c) => !c.trim())) return;
-    socket.emit('game:submitClues', { clues });
+    socket.emit('game:submitClues', { playerId, clues });
     setSubmitted(true);
   };
 
