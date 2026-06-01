@@ -3,7 +3,7 @@ import socket from '../socket';
 
 const NUMS = [1, 2, 3, 4];
 
-export default function GuessPhase({ cr, myTeam }) {
+export default function GuessPhase({ cr, myTeam, playerId }) {
   const [interception, setInterception] = useState(['', '', '']);
   const [decoding, setDecoding] = useState(['', '', '']);
   const [sent, setSent] = useState({ interception: false, decoding: false });
@@ -15,7 +15,7 @@ export default function GuessPhase({ cr, myTeam }) {
   const myClues = cr.clues[myTeam];
 
   const submitGuess = (type, guess) => {
-    socket.emit('game:submitGuess', { type, guess: guess.map(Number) });
+    socket.emit('game:submitGuess', { playerId, type, guess: guess.map(Number) });
     setSent((prev) => ({ ...prev, [type]: true }));
   };
 
