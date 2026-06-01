@@ -1,13 +1,10 @@
 {
   "name": "decrypto",
   "version": "1.0.0",
-  "dependencies": {
-    "express": "^4.18.2",
-    "socket.io": "^4.7.2"
-  },
   "scripts": {
-    "build": "cd client && npm install && npm run build",
+    "build": "cd server && npm install && cd ../client && npm install && npm run build",
     "start": "node server/index.js",
     "dev": "node server/index.js"
-  }
+  },
+  "postinstall": "npm run build"
 }
