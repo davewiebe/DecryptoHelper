@@ -9,6 +9,5 @@
     "build": "cd client && npm install && npm run build",
     "start": "node server/index.js",
     "dev": "node server/index.js"
-  },
-  "postinstall": "npm run build"
+  }
 }
