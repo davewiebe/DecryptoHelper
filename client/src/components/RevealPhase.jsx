@@ -1,10 +1,9 @@
 import React from 'react';
 import socket from '../socket';
-import ClueColumns from './ClueColumns';
 
 const TEAM_COLORS = { white: '#e8e8e8', black: '#7ab4ff' };
 
-export default function RevealPhase({ cr, room, isHost, myTeam, playerId, keywords }) {
+export default function RevealPhase({ cr, room, isHost, myTeam, playerId }) {
   if (!cr?.results) return null;
 
   const { results } = cr;
@@ -32,19 +31,6 @@ export default function RevealPhase({ cr, room, isHost, myTeam, playerId, keywor
                 success={decoded}
                 detail={`Guessed: ${(cr.decodingGuesses[team] || []).join('-')} | Actual: ${(cr.codes[team] || []).join('-')}`}
               />
-
-              <div style={s.clueHistory}>
-                <div style={s.clueHistLabel}>
-                  Clues placed by column{!decoded && ' (struck = decoded into the wrong column)'}:
-                </div>
-                <ClueColumns
-                  code={cr.codes[team]}
-                  clues={cr.clues[team]}
-                  decodingGuess={cr.decodingGuesses[team]}
-                  keywords={team === myTeam ? keywords : null}
-                  teamColor={TEAM_COLORS[team]}
-                />
-              </div>
 
               <div style={s.tokens}>
                 <span style={{ color: '#4caf50' }}>⬤ {results.tokens[team].interceptions} interceptions</span>
@@ -89,10 +75,6 @@ const s = {
   resultIcon: { fontSize: 20, lineHeight: 1 },
   resultLabel: { fontSize: 14 },
   resultDetail: { fontSize: 11, opacity: 0.5, marginTop: 2 },
-  clueHistory: { background: '#0a0a0f', borderRadius: 6, padding: 10, display: 'flex', flexDirection: 'column', gap: 5 },
-  clueHistLabel: { fontSize: 10, opacity: 0.4, letterSpacing: 1, marginBottom: 2 },
-  clueHistRow: { display: 'flex', gap: 10, fontSize: 13, alignItems: 'center' },
-  histNum: { width: 18, height: 18, background: '#1e1e2e', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, flexShrink: 0, color: '#a0c4ff', textAlign: 'center', lineHeight: '18px' },
   tokens: { display: 'flex', gap: 12, fontSize: 12 },
   nextBtn: { background: '#3a6fd8', color: '#fff', border: 'none', borderRadius: 8, padding: '14px 0', cursor: 'pointer', fontFamily: 'inherit', letterSpacing: 2, fontSize: 15 },
   waiting: { textAlign: 'center', opacity: 0.5, fontSize: 13 },
