@@ -46,6 +46,21 @@ function sendPrivate(io, room) {
   }
 }
 
+// Populate a fresh room with 4 players (2 per team) + keywords, all owned by
+// the creating socket. Returns the extra (non-host) playerIds. Test only.
+function seedTestRoom(room, socketId, hostId) {
+  room.players.get(hostId).team = 'white';
+  const w2 = addPlayer(room.code, socketId, 'White 2').playerId;
+  const b1 = addPlayer(room.code, socketId, 'Black 1').playerId;
+  const b2 = addPlayer(room.code, socketId, 'Black 2').playerId;
+  room.players.get(w2).team = 'white';
+  room.players.get(b1).team = 'black';
+  room.players.get(b2).team = 'black';
+  room.teams.white.keywords = ['APPLE', 'RIVER', 'TIGER', 'PLANET'];
+  room.teams.black.keywords = ['GUITAR', 'CASTLE', 'ROCKET', 'GARDEN'];
+  return [w2, b1, b2];
+}
+
 function registerHandlers(io, socket) {
   let currentRoom = null;
   const owned = new Set(); // playerIds this socket controls
@@ -66,13 +81,20 @@ function registerHandlers(io, socket) {
     currentRoom = null;
   }
 
-  socket.on('room:create', ({ name }) => {
+  socket.on('room:create', ({ name, seed }) => {
     if (!name) return;
     const { room, playerId } = createRoom(socket.id, name);
     socket.join(room.code);
     currentRoom = room.code;
     owned.add(playerId);
     socket.emit('room:joined', { code: room.code, playerId });
+
+    if (seed) {
+      const extras = seedTestRoom(room, socket.id, playerId);
+      extras.forEach((id) => owned.add(id));
+      socket.emit('room:seededPlayers', { playerIds: extras });
+    }
+
     broadcastRoom(io, room);
     sendPrivate(io, room);
   });

@@ -28,6 +28,9 @@ function reducer(state, action) {
       };
     case 'LOCAL_ADDED':
       return { ...state, ownedIds: [...state.ownedIds, action.playerId], activeId: action.playerId };
+    case 'SEEDED':
+      // Append seeded players but keep the host (first owned) as active.
+      return { ...state, ownedIds: [...state.ownedIds, ...action.playerIds] };
     case 'SET_ACTIVE':
       return { ...state, activeId: action.playerId };
     case 'ROOM_STATE':
@@ -53,6 +56,7 @@ export default function App() {
 
     socket.on('room:joined', ({ code, playerId }) => dispatch({ type: 'JOINED', code, playerId }));
     socket.on('room:localPlayerAdded', ({ playerId }) => dispatch({ type: 'LOCAL_ADDED', playerId }));
+    socket.on('room:seededPlayers', ({ playerIds }) => dispatch({ type: 'SEEDED', playerIds }));
     socket.on('room:state', (room) => dispatch({ type: 'ROOM_STATE', room }));
     socket.on('game:private', (map) => dispatch({ type: 'PRIVATE', map }));
     socket.on('room:error', ({ message }) => dispatch({ type: 'ERROR', message }));

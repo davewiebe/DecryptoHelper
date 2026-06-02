@@ -11,6 +11,11 @@ export default function Home() {
     socket.emit('room:create', { name: name.trim() });
   };
 
+  const createTest = () => {
+    if (!name.trim()) return;
+    socket.emit('room:create', { name: name.trim(), seed: true });
+  };
+
   const join = () => {
     if (!name.trim() || !joinCode.trim()) return;
     socket.emit('room:join', { name: name.trim(), code: joinCode.trim().toUpperCase() });
@@ -43,6 +48,10 @@ export default function Home() {
             <button style={s.btn} onClick={create} disabled={!name.trim()}>
               Create &amp; Host
             </button>
+            <button style={{ ...s.btn, ...s.btnOutline }} onClick={createTest} disabled={!name.trim()}>
+              Create Test Room (4 players + words)
+            </button>
+            <span style={s.hint}>Test room: 2 players per team, keywords pre-filled. You control all 4.</span>
             <button style={s.back} onClick={() => setMode(null)}>Back</button>
           </>
         )}
@@ -84,6 +93,7 @@ const s = {
   },
   title: { margin: 0, fontSize: 42, letterSpacing: 8, color: '#a0c4ff' },
   sub: { margin: 0, opacity: 0.5, fontSize: 13 },
+  hint: { fontSize: 11, opacity: 0.45, lineHeight: 1.5 },
   input: {
     background: '#1e1e2e',
     border: '1px solid #3a3a5a',
