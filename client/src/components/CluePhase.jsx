@@ -85,7 +85,6 @@ export default function CluePhase({ cr, myTeam, playerId, amClueGiver, secretCod
       {claimedBy && !amClueGiver && !mySubmitted && (
         <div style={s.claimBox}>
           <div style={s.claimText}><strong>{giverName || 'A teammate'}</strong> is giving the clue.</div>
-          <button style={s.takeoverBtn} onClick={claim}>Let me give it instead</button>
         </div>
       )}
 
@@ -131,7 +130,6 @@ const s = {
   claimBox: { background: '#13131a', border: '1px solid #2a2a3a', borderRadius: 10, padding: 24, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 14 },
   claimText: { fontSize: 14, opacity: 0.8, textAlign: 'center' },
   claimBtn: { background: '#3a6fd8', color: '#fff', border: 'none', borderRadius: 8, padding: '12px 28px', cursor: 'pointer', fontFamily: 'inherit', fontSize: 15, letterSpacing: 1 },
-  takeoverBtn: { background: 'transparent', border: '1px solid #3a6fd8', color: '#a0c4ff', borderRadius: 8, padding: '8px 18px', cursor: 'pointer', fontFamily: 'inherit', fontSize: 12 },
   codeBox: { background: '#13131a', border: '1px solid #2a2a3a', borderRadius: 10, padding: 20, display: 'flex', flexDirection: 'column', gap: 16 },
   codeLabel: { fontSize: 12, opacity: 0.6, letterSpacing: 1 },
   codeRow: { display: 'flex', gap: 12 },
