@@ -6,6 +6,9 @@ import React from 'react';
 //
 // - keywords provided  -> headers show your own keyword words (your team)
 // - keywords null      -> headers show numbers only (opponent / interception)
+//
+// When a team mis-decoded one of its own clues, that clue is also shown
+// struck-through in the column the team *guessed* it belonged to.
 export default function ClueTracker({ history, team, keywords, teamColor, title }) {
   const cols = [[], [], [], []];
 
@@ -17,10 +20,15 @@ export default function ClueTracker({ history, team, keywords, teamColor, title 
     .forEach((h) => {
       const code = h.summary?.codes?.[team];
       const clues = h.summary?.clues?.[team];
+      const guesses = h.summary?.decodingGuesses?.[team];
       if (!code || !clues) return;
       clues.forEach((clue, i) => {
-        const c = code[i];
-        if (c >= 1 && c <= 4) cols[c - 1].push({ round: h.round, clue });
+        const actual = code[i];
+        if (actual >= 1 && actual <= 4) cols[actual - 1].push({ round: h.round, clue, struck: false });
+        const guess = guesses ? guesses[i] : null;
+        if (guess && guess !== actual && guess >= 1 && guess <= 4) {
+          cols[guess - 1].push({ round: h.round, clue, struck: true });
+        }
       });
     });
 
@@ -38,7 +46,7 @@ export default function ClueTracker({ history, team, keywords, teamColor, title 
               {entries.map((e, j) => (
                 <div key={j} style={s.entry}>
                   <span style={s.round}>{e.round}</span>
-                  <span style={s.clue}>{e.clue}</span>
+                  <span style={{ ...s.clue, ...(e.struck ? s.struck : null) }}>{e.clue}</span>
                 </div>
               ))}
               {entries.length === 0 && <span style={s.placeholder}>—</span>}
@@ -62,5 +70,6 @@ const s = {
   entry: { display: 'flex', alignItems: 'baseline', gap: 6, fontSize: 12 },
   round: { fontSize: 9, opacity: 0.35, width: 10, flexShrink: 0, textAlign: 'right' },
   clue: { wordBreak: 'break-word' },
+  struck: { textDecoration: 'line-through', color: '#e53935', opacity: 0.85 },
   placeholder: { opacity: 0.2, fontSize: 12, textAlign: 'center' },
 };
