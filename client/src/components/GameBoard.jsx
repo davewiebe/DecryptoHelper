@@ -61,7 +61,7 @@ export default function GameBoard({ room, playerId, roomCode, keywords, secretCo
           <GuessPhase key={playerId} cr={cr} myTeam={myTeam} playerId={playerId} />
         )}
         {phase === 'reveal' && (
-          <RevealPhase cr={cr} room={room} isHost={isHost} myTeam={myTeam} playerId={playerId} />
+          <RevealPhase cr={cr} room={room} isHost={isHost} myTeam={myTeam} playerId={playerId} keywords={keywords} />
         )}
         {phase === 'ended' && (
           <EndedPhase room={room} myTeam={myTeam} history={room.history} />

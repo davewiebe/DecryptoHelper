@@ -1,9 +1,10 @@
 import React from 'react';
 import socket from '../socket';
+import ClueColumns from './ClueColumns';
 
 const TEAM_COLORS = { white: '#e8e8e8', black: '#7ab4ff' };
 
-export default function RevealPhase({ cr, room, isHost, myTeam, playerId }) {
+export default function RevealPhase({ cr, room, isHost, myTeam, playerId, keywords }) {
   if (!cr?.results) return null;
 
   const { results } = cr;
@@ -33,13 +34,16 @@ export default function RevealPhase({ cr, room, isHost, myTeam, playerId }) {
               />
 
               <div style={s.clueHistory}>
-                <div style={s.clueHistLabel}>Their clues this round:</div>
-                {cr.clues[team].map((c, i) => (
-                  <div key={i} style={s.clueHistRow}>
-                    <span style={s.histNum}>{cr.codes[team][i]}</span>
-                    <span>{c}</span>
-                  </div>
-                ))}
+                <div style={s.clueHistLabel}>
+                  Clues placed by column{!decoded && ' (struck = decoded into the wrong column)'}:
+                </div>
+                <ClueColumns
+                  code={cr.codes[team]}
+                  clues={cr.clues[team]}
+                  decodingGuess={cr.decodingGuesses[team]}
+                  keywords={team === myTeam ? keywords : null}
+                  teamColor={TEAM_COLORS[team]}
+                />
               </div>
 
               <div style={s.tokens}>
@@ -78,7 +82,7 @@ function ResultRow({ label, success, detail }) {
 const s = {
   wrap: { display: 'flex', flexDirection: 'column', gap: 20 },
   phase: { margin: 0, fontSize: 16, letterSpacing: 3, color: '#a0c4ff' },
-  grid: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 },
+  grid: { display: 'grid', gridTemplateColumns: '1fr', gap: 16 },
   card: { background: '#13131a', border: '1px solid #2a2a3a', borderRadius: 10, padding: 20, display: 'flex', flexDirection: 'column', gap: 12 },
   teamLabel: { fontWeight: 'bold', letterSpacing: 3, fontSize: 12 },
   resultRow: { display: 'flex', gap: 10, alignItems: 'flex-start' },
