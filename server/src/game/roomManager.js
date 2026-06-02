@@ -29,7 +29,6 @@ function createRoom(socketId, hostName) {
     },
     round: 0,
     maxRounds: 8,
-    clueGiverIndex: { white: 0, black: 0 },
     currentRound: null,
     history: [],
   };

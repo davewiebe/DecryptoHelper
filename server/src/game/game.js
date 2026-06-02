@@ -14,23 +14,12 @@ function startRound(room) {
   room.round += 1;
   const roundNum = room.round;
 
-  const whiteClueGiverPlayers = playersOnTeam(room, 'white');
-  const blackClueGiverPlayers = playersOnTeam(room, 'black');
-
-  const whiteGiver = whiteClueGiverPlayers.length
-    ? whiteClueGiverPlayers[room.clueGiverIndex.white % whiteClueGiverPlayers.length]
-    : null;
-  const blackGiver = blackClueGiverPlayers.length
-    ? blackClueGiverPlayers[room.clueGiverIndex.black % blackClueGiverPlayers.length]
-    : null;
-
   room.currentRound = {
     number: roundNum,
     codes: { white: randomCode(), black: randomCode() },
-    clueGivers: {
-      white: whiteGiver ? whiteGiver.id : null,
-      black: blackGiver ? blackGiver.id : null,
-    },
+    // Clue giver is claimed each round by whichever teammate presses
+    // "give the clue" (null = unclaimed).
+    clueGivers: { white: null, black: null },
     clues: { white: ['', '', ''], black: ['', '', ''] },
     cluesSubmitted: { white: false, black: false },
     // interception: each team guesses the OPPONENT's code
@@ -107,9 +96,6 @@ function resolveRound(room) {
   room.history.unshift({ type: 'round', round: room.round, summary: cr, ts: Date.now() });
   if (room.history.length > 50) room.history.pop();
 
-  room.clueGiverIndex.white += 1;
-  room.clueGiverIndex.black += 1;
-
   const winner = checkWinner(room);
   if (winner || room.round >= room.maxRounds) {
     room.phase = 'ended';
@@ -135,10 +121,6 @@ function resolveByScore(room) {
   if (w > b) return 'white';
   if (b > w) return 'black';
   return 'draw';
-}
-
-function playersOnTeam(room, team) {
-  return Array.from(room.players.values()).filter((p) => p.team === team);
 }
 
 function arrEqual(a, b) {
