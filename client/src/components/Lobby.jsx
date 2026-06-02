@@ -28,8 +28,8 @@ export default function Lobby({ room, playerId, onLeave }) {
 
   const canStart =
     isHost &&
-    whitePlayers.length > 0 &&
-    blackPlayers.length > 0;
+    whitePlayers.length >= 2 &&
+    blackPlayers.length >= 2;
 
   const start = () => socket.emit('room:start', { playerId });
 

@@ -154,8 +154,9 @@ function registerHandlers(io, socket) {
 
     const whitePlayers = Array.from(room.players.values()).filter((p) => p.team === 'white');
     const blackPlayers = Array.from(room.players.values()).filter((p) => p.team === 'black');
-    if (!whitePlayers.length || !blackPlayers.length) {
-      return socket.emit('room:error', { message: 'Each team needs at least one player' });
+    // Need 2+ per team: one gives the clue, another decodes it.
+    if (whitePlayers.length < 2 || blackPlayers.length < 2) {
+      return socket.emit('room:error', { message: 'Each team needs at least two players' });
     }
     for (const team of ['white', 'black']) {
       if (room.teams[team].keywords.some((k) => !k.trim())) {
@@ -204,6 +205,11 @@ function registerHandlers(io, socket) {
     const room = getRoom(currentRoom);
     const player = ownedPlayer(room, playerId);
     if (!player || !player.team) return;
+
+    // The clue giver knows their own code — they may not decode it.
+    if (type === 'decoding' && room.currentRound.clueGivers[player.team] === playerId) {
+      return socket.emit('room:error', { message: 'The clue giver cannot decode their own code' });
+    }
 
     const result = submitGuess(room, player.team, type, guess);
     if (result.error) return socket.emit('room:error', { message: result.error });
