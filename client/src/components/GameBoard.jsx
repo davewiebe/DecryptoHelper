@@ -4,6 +4,7 @@ import GuessPhase from './GuessPhase';
 import RevealPhase from './RevealPhase';
 import EndedPhase from './EndedPhase';
 import ScoreBar from './ScoreBar';
+import ClueTracker from './ClueTracker';
 
 const TEAM_COLORS = { white: '#e8e8e8', black: '#7ab4ff' };
 
@@ -17,6 +18,7 @@ export default function GameBoard({ room, playerId, roomCode, keywords, secretCo
   const phase = room.phase;
 
   const amClueGiver = cr && myTeam && cr.clueGivers[myTeam] === playerId;
+  const oppTeam = myTeam === 'white' ? 'black' : 'white';
 
   return (
     <div style={s.page}>
@@ -35,14 +37,15 @@ export default function GameBoard({ room, playerId, roomCode, keywords, secretCo
 
       <ScoreBar teams={room.teams} />
 
-      <div style={s.keywords}>
-        {keywords.map((kw, i) => (
-          <div key={i} style={s.kwChip}>
-            <span style={s.kwNum}>{i + 1}</span>
-            <span style={s.kwWord}>{kw || '?'}</span>
-          </div>
-        ))}
-      </div>
+      {myTeam && (
+        <ClueTracker
+          history={room.history}
+          team={myTeam}
+          keywords={keywords}
+          teamColor={TEAM_COLORS[myTeam]}
+          title="YOUR KEYWORDS & CLUE HISTORY"
+        />
+      )}
 
       <div style={s.content}>
         {phase === 'cluing' && (
@@ -67,6 +70,16 @@ export default function GameBoard({ room, playerId, roomCode, keywords, secretCo
           <EndedPhase room={room} myTeam={myTeam} history={room.history} />
         )}
       </div>
+
+      {myTeam && (
+        <ClueTracker
+          history={room.history}
+          team={oppTeam}
+          keywords={null}
+          teamColor={TEAM_COLORS[oppTeam]}
+          title="INTERCEPTION NOTES — OPPONENT CLUES BY COLUMN"
+        />
+      )}
     </div>
   );
 }
@@ -79,12 +92,5 @@ const s = {
   round: { fontSize: 12, opacity: 0.5 },
   myTeam: { flex: 1, textAlign: 'center', letterSpacing: 3, fontWeight: 'bold', fontSize: 13 },
   leaveBtn: { background: 'transparent', border: '1px solid #444', color: '#888', borderRadius: 6, padding: '6px 12px', cursor: 'pointer', fontFamily: 'inherit', fontSize: 12 },
-  keywords: { display: 'flex', gap: 10 },
-  kwChip: {
-    flex: 1, background: '#13131a', border: '1px solid #2a2a3a', borderRadius: 8,
-    padding: '10px 8px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4,
-  },
-  kwNum: { fontSize: 11, opacity: 0.4, letterSpacing: 1 },
-  kwWord: { fontSize: 15, fontWeight: 'bold', textAlign: 'center', wordBreak: 'break-word' },
   content: { flex: 1 },
 };
