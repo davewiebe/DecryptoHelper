@@ -169,6 +169,19 @@ function registerHandlers(io, socket) {
     emit(io, room, 'game:started', { round: room.round });
   });
 
+  // Any teammate can claim the clue-giver role for the round (until their
+  // clues are submitted), which reveals the secret code to that player.
+  socket.on('game:claimClueGiver', ({ playerId }) => {
+    const room = getRoom(currentRoom);
+    const player = ownedPlayer(room, playerId);
+    if (!player || !player.team || room.phase !== 'cluing') return;
+    const cr = room.currentRound;
+    if (cr.cluesSubmitted[player.team]) return;
+    cr.clueGivers[player.team] = playerId;
+    broadcastRoom(io, room);
+    sendPrivate(io, room);
+  });
+
   socket.on('game:submitClues', ({ playerId, clues }) => {
     const room = getRoom(currentRoom);
     const player = ownedPlayer(room, playerId);

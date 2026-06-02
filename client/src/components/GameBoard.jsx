@@ -54,6 +54,7 @@ export default function GameBoard({ room, playerId, roomCode, keywords, secretCo
             amClueGiver={amClueGiver}
             secretCode={secretCode}
             keywords={keywords}
+            players={room.players}
           />
         )}
         {phase === 'guessing' && (

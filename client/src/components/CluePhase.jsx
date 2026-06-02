@@ -1,13 +1,15 @@
 import React, { useState } from 'react';
 import socket from '../socket';
 
-export default function CluePhase({ cr, myTeam, playerId, amClueGiver, secretCode, keywords }) {
+export default function CluePhase({ cr, myTeam, playerId, amClueGiver, secretCode, keywords, players }) {
   const [clues, setClues] = useState(['', '', '']);
   const [submitted, setSubmitted] = useState(false);
 
   if (!cr) return null;
 
   const mySubmitted = cr.cluesSubmitted[myTeam];
+  const claimedBy = cr.clueGivers[myTeam];
+  const giverName = (players || []).find((p) => p.id === claimedBy)?.name;
 
   const submit = () => {
     if (clues.some((c) => !c.trim())) return;
@@ -15,12 +17,23 @@ export default function CluePhase({ cr, myTeam, playerId, amClueGiver, secretCod
     setSubmitted(true);
   };
 
+  const claim = () => socket.emit('game:claimClueGiver', { playerId });
+
   const oppTeam = myTeam === 'white' ? 'black' : 'white';
 
   return (
     <div style={s.wrap}>
       <h2 style={s.phase}>CLUE PHASE — Round {cr.number}</h2>
 
+      {/* Nobody has claimed the clue-giver role yet */}
+      {!mySubmitted && !claimedBy && (
+        <div style={s.claimBox}>
+          <div style={s.claimText}>No one is giving the clue for your team yet.</div>
+          <button style={s.claimBtn} onClick={claim}>I'll give the clue</button>
+        </div>
+      )}
+
+      {/* I'm the clue giver — show code + clue form */}
       {amClueGiver && secretCode && (
         <div style={s.codeBox}>
           <div style={s.codeLabel}>Your secret code — give clues in this order:</div>
@@ -63,12 +76,22 @@ export default function CluePhase({ cr, myTeam, playerId, amClueGiver, secretCod
         </div>
       )}
 
-      {!amClueGiver && (
-        <div style={s.waiting}>
-          {mySubmitted
-            ? 'Your clue giver has submitted. Waiting for the other team…'
-            : `Waiting for your clue giver to give clues…`}
+      {/* I claimed but the code hasn't arrived yet */}
+      {amClueGiver && !secretCode && !mySubmitted && (
+        <div style={s.waiting}>Revealing your secret code…</div>
+      )}
+
+      {/* A teammate (not me) claimed the role */}
+      {claimedBy && !amClueGiver && !mySubmitted && (
+        <div style={s.claimBox}>
+          <div style={s.claimText}><strong>{giverName || 'A teammate'}</strong> is giving the clue.</div>
+          <button style={s.takeoverBtn} onClick={claim}>Let me give it instead</button>
         </div>
+      )}
+
+      {/* My team's clues are in */}
+      {mySubmitted && (
+        <div style={s.waiting}>Your clues are submitted. Waiting for the other team…</div>
       )}
 
       <div style={s.status}>
@@ -105,6 +128,10 @@ function StatusDot({ done, label }) {
 const s = {
   wrap: { display: 'flex', flexDirection: 'column', gap: 20 },
   phase: { margin: 0, fontSize: 16, letterSpacing: 3, color: '#a0c4ff' },
+  claimBox: { background: '#13131a', border: '1px solid #2a2a3a', borderRadius: 10, padding: 24, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 14 },
+  claimText: { fontSize: 14, opacity: 0.8, textAlign: 'center' },
+  claimBtn: { background: '#3a6fd8', color: '#fff', border: 'none', borderRadius: 8, padding: '12px 28px', cursor: 'pointer', fontFamily: 'inherit', fontSize: 15, letterSpacing: 1 },
+  takeoverBtn: { background: 'transparent', border: '1px solid #3a6fd8', color: '#a0c4ff', borderRadius: 8, padding: '8px 18px', cursor: 'pointer', fontFamily: 'inherit', fontSize: 12 },
   codeBox: { background: '#13131a', border: '1px solid #2a2a3a', borderRadius: 10, padding: 20, display: 'flex', flexDirection: 'column', gap: 16 },
   codeLabel: { fontSize: 12, opacity: 0.6, letterSpacing: 1 },
   codeRow: { display: 'flex', gap: 12 },
