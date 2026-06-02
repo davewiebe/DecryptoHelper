@@ -13,6 +13,8 @@ export default function GuessPhase({ cr, myTeam, playerId }) {
   const oppTeam = myTeam === 'white' ? 'black' : 'white';
   const oppClues = cr.clues[oppTeam];
   const myClues = cr.clues[myTeam];
+  // The clue giver knows their own code, so they can't decode it — only intercept.
+  const amClueGiver = cr.clueGivers[myTeam] === playerId;
 
   const submitGuess = (type, guess) => {
     socket.emit('game:submitGuess', { playerId, type, guess: guess.map(Number) });
@@ -60,33 +62,44 @@ export default function GuessPhase({ cr, myTeam, playerId }) {
 
         <div style={s.panel}>
           <div style={s.panelTitle}>DECODE your own code</div>
-          <div style={s.subLabel}>Your clues (confirm the order):</div>
-          {myClues.map((clue, i) => (
-            <div key={i} style={s.clueRow}>
-              <span style={s.clueText}>{clue}</span>
-              <Select
-                value={decoding[i]}
-                options={NUMS}
-                onChange={(v) => {
-                  const next = [...decoding];
-                  next[i] = v;
-                  setDecoding(next);
-                }}
-                disabled={sent.decoding || cr.decodingSubmitted[myTeam]}
-              />
+          {amClueGiver ? (
+            <div style={s.giverNote}>
+              You gave the clues this round, so you can't decode your own code.
+              {cr.decodingSubmitted[myTeam]
+                ? ' Your teammates have decoded it.'
+                : ' A teammate needs to decode it.'}
             </div>
-          ))}
-          {!sent.decoding && !cr.decodingSubmitted[myTeam] && (
-            <button
-              style={{ ...s.submitBtn, opacity: valid(decoding) ? 1 : 0.4 }}
-              onClick={() => submitGuess('decoding', decoding)}
-              disabled={!valid(decoding)}
-            >
-              Submit Decoding
-            </button>
-          )}
-          {(sent.decoding || cr.decodingSubmitted[myTeam]) && (
-            <div style={s.done}>Decoding submitted</div>
+          ) : (
+            <>
+              <div style={s.subLabel}>Your clues (confirm the order):</div>
+              {myClues.map((clue, i) => (
+                <div key={i} style={s.clueRow}>
+                  <span style={s.clueText}>{clue}</span>
+                  <Select
+                    value={decoding[i]}
+                    options={NUMS}
+                    onChange={(v) => {
+                      const next = [...decoding];
+                      next[i] = v;
+                      setDecoding(next);
+                    }}
+                    disabled={sent.decoding || cr.decodingSubmitted[myTeam]}
+                  />
+                </div>
+              ))}
+              {!sent.decoding && !cr.decodingSubmitted[myTeam] && (
+                <button
+                  style={{ ...s.submitBtn, opacity: valid(decoding) ? 1 : 0.4 }}
+                  onClick={() => submitGuess('decoding', decoding)}
+                  disabled={!valid(decoding)}
+                >
+                  Submit Decoding
+                </button>
+              )}
+              {(sent.decoding || cr.decodingSubmitted[myTeam]) && (
+                <div style={s.done}>Decoding submitted</div>
+              )}
+            </>
           )}
         </div>
       </div>
@@ -131,4 +144,5 @@ const s = {
   clueText: { flex: 1, fontSize: 14 },
   submitBtn: { background: '#3a6fd8', color: '#fff', border: 'none', borderRadius: 6, padding: '10px 0', cursor: 'pointer', fontFamily: 'inherit', fontSize: 13, letterSpacing: 1, marginTop: 4 },
   done: { color: '#4caf50', fontSize: 13, textAlign: 'center', marginTop: 4 },
+  giverNote: { fontSize: 13, opacity: 0.6, lineHeight: 1.5, fontStyle: 'italic' },
 };
