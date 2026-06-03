@@ -37,6 +37,13 @@ export default function GameBoard({ room, playerId, roomCode, keywords, secretCo
 
       <ScoreBar teams={room.teams} />
 
+      {phase === 'cluing' && cr && (
+        <div style={s.clueStatus}>
+          <StatusDot done={cr.cluesSubmitted.white} label="White clues" />
+          <StatusDot done={cr.cluesSubmitted.black} label="Black clues" />
+        </div>
+      )}
+
       {/* During guessing the worksheets are shown inline within GuessPhase. */}
       {myTeam && phase !== 'guessing' && (
         <ClueTracker
@@ -92,8 +99,18 @@ export default function GameBoard({ room, playerId, roomCode, keywords, secretCo
   );
 }
 
+function StatusDot({ done, label }) {
+  return (
+    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+      <div style={{ width: 10, height: 10, borderRadius: '50%', background: done ? '#4caf50' : '#444' }} />
+      <span style={{ fontSize: 12, opacity: done ? 1 : 0.4 }}>{label}</span>
+    </div>
+  );
+}
+
 const s = {
   page: { maxWidth: 800, margin: '0 auto', padding: 20, display: 'flex', flexDirection: 'column', gap: 16 },
+  clueStatus: { display: 'flex', gap: 20, justifyContent: 'center' },
   topBar: { display: 'flex', alignItems: 'center', gap: 16 },
   roomInfo: { display: 'flex', flexDirection: 'column' },
   roomCode: { fontSize: 20, letterSpacing: 4, color: '#a0c4ff', fontWeight: 'bold' },

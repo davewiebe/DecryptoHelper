@@ -90,20 +90,6 @@ export default function CluePhase({ cr, myTeam, playerId, amClueGiver, secretCod
       {mySubmitted && (
         <div style={s.waiting}>Your clues are submitted. Waiting for the other team…</div>
       )}
-
-      <div style={s.status}>
-        <StatusDot done={cr.cluesSubmitted.white} label="White clues" />
-        <StatusDot done={cr.cluesSubmitted.black} label="Black clues" />
-      </div>
-    </div>
-  );
-}
-
-function StatusDot({ done, label }) {
-  return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-      <div style={{ width: 10, height: 10, borderRadius: '50%', background: done ? '#4caf50' : '#444' }} />
-      <span style={{ fontSize: 12, opacity: done ? 1 : 0.4 }}>{label}</span>
     </div>
   );
 }
@@ -127,5 +113,4 @@ const s = {
   submitBtn: { background: '#3a6fd8', color: '#fff', border: 'none', borderRadius: 6, padding: '12px 0', cursor: 'pointer', fontFamily: 'inherit', fontSize: 14, letterSpacing: 1 },
   submitted: { color: '#4caf50', fontSize: 14, textAlign: 'center' },
   waiting: { background: '#13131a', border: '1px solid #2a2a3a', borderRadius: 10, padding: 24, textAlign: 'center', opacity: 0.6, fontSize: 14 },
-  status: { display: 'flex', gap: 20 },
 };
