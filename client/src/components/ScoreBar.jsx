@@ -37,12 +37,12 @@ function Pips({ count, max, color }) {
 }
 
 const s = {
-  bar: { display: 'flex', background: '#13131a', border: '1px solid #2a2a3a', borderRadius: 10, padding: '14px 24px', gap: 24 },
-  side: { flex: 1, display: 'flex', flexDirection: 'column', gap: 8 },
-  name: { fontWeight: 'bold', letterSpacing: 3, fontSize: 12 },
-  tokens: { display: 'flex', alignItems: 'center', gap: 10 },
-  label: { fontSize: 11, opacity: 0.5, width: 140 },
-  pips: { display: 'flex', gap: 6 },
-  pip: { width: 18, height: 18, borderRadius: '50%' },
-  divider: { width: 1, background: '#2a2a3a' },
+  bar: { display: 'flex', background: '#13131a', border: '1px solid #2a2a3a', borderRadius: 10, padding: '12px 14px', gap: 14 },
+  side: { flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: 8 },
+  name: { fontWeight: 'bold', letterSpacing: 2, fontSize: 12 },
+  tokens: { display: 'flex', alignItems: 'center', gap: 8 },
+  label: { flex: 1, minWidth: 0, fontSize: 11, opacity: 0.5 },
+  pips: { display: 'flex', gap: 5, flexShrink: 0 },
+  pip: { width: 16, height: 16, borderRadius: '50%' },
+  divider: { width: 1, background: '#2a2a3a', flexShrink: 0 },
 };

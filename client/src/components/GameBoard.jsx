@@ -109,7 +109,7 @@ function StatusDot({ done, label }) {
 }
 
 const s = {
-  page: { maxWidth: 800, margin: '0 auto', padding: 20, display: 'flex', flexDirection: 'column', gap: 16 },
+  page: { maxWidth: 800, margin: '0 auto', padding: 12, width: '100%', display: 'flex', flexDirection: 'column', gap: 16 },
   clueStatus: { display: 'flex', gap: 20, justifyContent: 'center' },
   topBar: { display: 'flex', alignItems: 'center', gap: 16 },
   roomInfo: { display: 'flex', flexDirection: 'column' },
