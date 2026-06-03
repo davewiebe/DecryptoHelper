@@ -55,6 +55,7 @@ export default function GuessPhase({ cr, myTeam, playerId, history, keywords }) 
                   <Select
                     value={decoding[i]}
                     options={NUMS}
+                    keywords={keywords}
                     onChange={(v) => {
                       const next = [...decoding];
                       next[i] = v;
@@ -127,7 +128,8 @@ export default function GuessPhase({ cr, myTeam, playerId, history, keywords }) 
   );
 }
 
-function Select({ value, options, onChange, disabled }) {
+function Select({ value, options, onChange, disabled, keywords }) {
+  const label = (o) => (keywords && keywords[o - 1] ? `${o} – ${keywords[o - 1]}` : `${o}`);
   return (
     <select
       value={value}
@@ -142,12 +144,13 @@ function Select({ value, options, onChange, disabled }) {
         fontFamily: 'inherit',
         fontSize: 15,
         cursor: disabled ? 'default' : 'pointer',
-        width: 60,
+        width: keywords ? 'auto' : 60,
+        minWidth: 60,
       }}
     >
       <option value="">—</option>
       {options.map((o) => (
-        <option key={o} value={o}>{o}</option>
+        <option key={o} value={o}>{label(o)}</option>
       ))}
     </select>
   );
