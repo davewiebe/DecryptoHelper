@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import socket from '../socket';
+import ClueTracker from './ClueTracker';
 
 const NUMS = [1, 2, 3, 4];
+const TEAM_COLORS = { white: '#e8e8e8', black: '#7ab4ff' };
 
-export default function GuessPhase({ cr, myTeam, playerId }) {
+export default function GuessPhase({ cr, myTeam, playerId, history, keywords }) {
   const [interception, setInterception] = useState(['', '', '']);
   const [decoding, setDecoding] = useState(['', '', '']);
   const [sent, setSent] = useState({ interception: false, decoding: false });
@@ -25,41 +27,16 @@ export default function GuessPhase({ cr, myTeam, playerId }) {
 
   return (
     <div style={s.wrap}>
-      <h2 style={s.phase}>GUESSING PHASE — Round {cr.number}</h2>
-
-      <div style={s.panels}>
-        <div style={s.panel}>
-          <div style={s.panelTitle}>INTERCEPT opponent's code</div>
-          <div style={s.subLabel}>Their clues (guess which keyword 1–4 each refers to):</div>
-          {oppClues.map((clue, i) => (
-            <div key={i} style={s.clueRow}>
-              <span style={s.clueText}>{clue}</span>
-              <Select
-                value={interception[i]}
-                options={NUMS}
-                onChange={(v) => {
-                  const next = [...interception];
-                  next[i] = v;
-                  setInterception(next);
-                }}
-                disabled={sent.interception || cr.interceptionSubmitted[myTeam]}
-              />
-            </div>
-          ))}
-          {!sent.interception && !cr.interceptionSubmitted[myTeam] && (
-            <button
-              style={{ ...s.submitBtn, opacity: valid(interception) ? 1 : 0.4 }}
-              onClick={() => submitGuess('interception', interception)}
-              disabled={!valid(interception)}
-            >
-              Submit Interception
-            </button>
-          )}
-          {(sent.interception || cr.interceptionSubmitted[myTeam]) && (
-            <div style={s.done}>Interception submitted</div>
-          )}
-        </div>
-
+      {/* DECODE PHASE */}
+      <section style={s.section}>
+        <h2 style={s.phase}>DECODE PHASE — Round {cr.number}</h2>
+        <ClueTracker
+          history={history}
+          team={myTeam}
+          keywords={keywords}
+          teamColor={TEAM_COLORS[myTeam]}
+          title="YOUR KEYWORDS & CLUE HISTORY"
+        />
         <div style={s.panel}>
           <div style={s.panelTitle}>DECODE your own code</div>
           {amClueGiver ? (
@@ -102,7 +79,50 @@ export default function GuessPhase({ cr, myTeam, playerId }) {
             </>
           )}
         </div>
-      </div>
+      </section>
+
+      {/* INTERCEPT PHASE */}
+      <section style={s.section}>
+        <h2 style={s.phase}>INTERCEPT PHASE — Round {cr.number}</h2>
+        <ClueTracker
+          history={history}
+          team={oppTeam}
+          keywords={null}
+          teamColor={TEAM_COLORS[oppTeam]}
+          title="INTERCEPTION NOTES — OPPONENT CLUES BY COLUMN"
+        />
+        <div style={s.panel}>
+          <div style={s.panelTitle}>INTERCEPT opponent's code</div>
+          <div style={s.subLabel}>Their clues (guess which keyword 1–4 each refers to):</div>
+          {oppClues.map((clue, i) => (
+            <div key={i} style={s.clueRow}>
+              <span style={s.clueText}>{clue}</span>
+              <Select
+                value={interception[i]}
+                options={NUMS}
+                onChange={(v) => {
+                  const next = [...interception];
+                  next[i] = v;
+                  setInterception(next);
+                }}
+                disabled={sent.interception || cr.interceptionSubmitted[myTeam]}
+              />
+            </div>
+          ))}
+          {!sent.interception && !cr.interceptionSubmitted[myTeam] && (
+            <button
+              style={{ ...s.submitBtn, opacity: valid(interception) ? 1 : 0.4 }}
+              onClick={() => submitGuess('interception', interception)}
+              disabled={!valid(interception)}
+            >
+              Submit Interception
+            </button>
+          )}
+          {(sent.interception || cr.interceptionSubmitted[myTeam]) && (
+            <div style={s.done}>Interception submitted</div>
+          )}
+        </div>
+      </section>
     </div>
   );
 }
@@ -134,9 +154,9 @@ function Select({ value, options, onChange, disabled }) {
 }
 
 const s = {
-  wrap: { display: 'flex', flexDirection: 'column', gap: 20 },
+  wrap: { display: 'flex', flexDirection: 'column', gap: 28 },
+  section: { display: 'flex', flexDirection: 'column', gap: 12 },
   phase: { margin: 0, fontSize: 16, letterSpacing: 3, color: '#a0c4ff' },
-  panels: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 },
   panel: { background: '#13131a', border: '1px solid #2a2a3a', borderRadius: 10, padding: 20, display: 'flex', flexDirection: 'column', gap: 12 },
   panelTitle: { fontWeight: 'bold', letterSpacing: 2, fontSize: 12, color: '#a0c4ff' },
   subLabel: { fontSize: 11, opacity: 0.5, marginBottom: 4 },
