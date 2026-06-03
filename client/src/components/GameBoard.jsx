@@ -37,7 +37,8 @@ export default function GameBoard({ room, playerId, roomCode, keywords, secretCo
 
       <ScoreBar teams={room.teams} />
 
-      {myTeam && (
+      {/* During guessing the worksheets are shown inline within GuessPhase. */}
+      {myTeam && phase !== 'guessing' && (
         <ClueTracker
           history={room.history}
           team={myTeam}
@@ -61,7 +62,14 @@ export default function GameBoard({ room, playerId, roomCode, keywords, secretCo
           />
         )}
         {phase === 'guessing' && (
-          <GuessPhase key={playerId} cr={cr} myTeam={myTeam} playerId={playerId} />
+          <GuessPhase
+            key={playerId}
+            cr={cr}
+            myTeam={myTeam}
+            playerId={playerId}
+            history={room.history}
+            keywords={keywords}
+          />
         )}
         {phase === 'reveal' && (
           <RevealPhase cr={cr} room={room} isHost={isHost} myTeam={myTeam} playerId={playerId} />
@@ -71,7 +79,7 @@ export default function GameBoard({ room, playerId, roomCode, keywords, secretCo
         )}
       </div>
 
-      {myTeam && (
+      {myTeam && phase !== 'guessing' && (
         <ClueTracker
           history={room.history}
           team={oppTeam}
