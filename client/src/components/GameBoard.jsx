@@ -35,26 +35,34 @@ export default function GameBoard({ room, playerId, roomCode, keywords, secretCo
         <button style={s.leaveBtn} onClick={onLeave}>Leave</button>
       </div>
 
+      {/* GAME STATUS */}
       <ScoreBar teams={room.teams} />
 
-      {phase === 'cluing' && cr && (
-        <div style={s.clueStatus}>
-          <StatusDot done={cr.cluesSubmitted.white} label="White clues" />
-          <StatusDot done={cr.cluesSubmitted.black} label="Black clues" />
+      {/* ROUND STATUS — phase header + per-team submission indicators */}
+      {(phase === 'cluing' || phase === 'guessing') && cr && (
+        <div style={s.roundStatus}>
+          <h2 style={s.phaseHeader}>
+            {phase === 'cluing' ? 'CLUE PHASE' : 'GUESSING PHASE'} — Round {cr.number}
+          </h2>
+          <div style={s.indicators}>
+            {phase === 'cluing' ? (
+              <>
+                <StatusDot done={cr.cluesSubmitted.white} label="White clues" />
+                <StatusDot done={cr.cluesSubmitted.black} label="Black clues" />
+              </>
+            ) : (
+              <>
+                <StatusDot done={cr.decodingSubmitted.white} label="White decode" />
+                <StatusDot done={cr.decodingSubmitted.black} label="Black decode" />
+                <StatusDot done={cr.interceptionSubmitted.white} label="White intercept" />
+                <StatusDot done={cr.interceptionSubmitted.black} label="Black intercept" />
+              </>
+            )}
+          </div>
         </div>
       )}
 
-      {/* During guessing the worksheets are shown inline within GuessPhase. */}
-      {myTeam && phase !== 'guessing' && (
-        <ClueTracker
-          history={room.history}
-          team={myTeam}
-          keywords={keywords}
-          teamColor={TEAM_COLORS[myTeam]}
-          title="YOUR KEYWORDS & CLUE HISTORY"
-        />
-      )}
-
+      {/* ROUND ACTIONS */}
       <div style={s.content}>
         {phase === 'cluing' && (
           <CluePhase
@@ -74,7 +82,6 @@ export default function GameBoard({ room, playerId, roomCode, keywords, secretCo
             cr={cr}
             myTeam={myTeam}
             playerId={playerId}
-            history={room.history}
             keywords={keywords}
           />
         )}
@@ -86,7 +93,19 @@ export default function GameBoard({ room, playerId, roomCode, keywords, secretCo
         )}
       </div>
 
-      {myTeam && phase !== 'guessing' && (
+      {/* YOUR KEYWORDS */}
+      {myTeam && phase !== 'ended' && (
+        <ClueTracker
+          history={room.history}
+          team={myTeam}
+          keywords={keywords}
+          teamColor={TEAM_COLORS[myTeam]}
+          title="YOUR KEYWORDS & CLUE HISTORY"
+        />
+      )}
+
+      {/* INTERCEPTION NOTES */}
+      {myTeam && phase !== 'ended' && (
         <ClueTracker
           history={room.history}
           team={oppTeam}
@@ -110,7 +129,9 @@ function StatusDot({ done, label }) {
 
 const s = {
   page: { maxWidth: 800, margin: '0 auto', padding: 12, width: '100%', display: 'flex', flexDirection: 'column', gap: 16 },
-  clueStatus: { display: 'flex', gap: 20, justifyContent: 'center' },
+  roundStatus: { display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10 },
+  phaseHeader: { margin: 0, fontSize: 16, letterSpacing: 3, color: '#a0c4ff', textAlign: 'center' },
+  indicators: { display: 'flex', flexWrap: 'wrap', gap: 12, justifyContent: 'center' },
   topBar: { display: 'flex', alignItems: 'center', gap: 16 },
   roomInfo: { display: 'flex', flexDirection: 'column' },
   roomCode: { fontSize: 20, letterSpacing: 4, color: '#a0c4ff', fontWeight: 'bold' },
