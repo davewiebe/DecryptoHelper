@@ -1,7 +1,10 @@
 import React, { useState } from 'react';
 import socket from '../socket';
+import ClueTracker from './ClueTracker';
 
-export default function CluePhase({ cr, myTeam, playerId, amClueGiver, secretCode, keywords, players }) {
+const TEAM_COLORS = { white: '#e8e8e8', black: '#7ab4ff' };
+
+export default function CluePhase({ cr, myTeam, playerId, amClueGiver, secretCode, keywords, players, history }) {
   const [clues, setClues] = useState(['', '', '']);
   const [submitted, setSubmitted] = useState(false);
 
@@ -10,6 +13,7 @@ export default function CluePhase({ cr, myTeam, playerId, amClueGiver, secretCod
   const mySubmitted = cr.cluesSubmitted[myTeam];
   const claimedBy = cr.clueGivers[myTeam];
   const giverName = (players || []).find((p) => p.id === claimedBy)?.name;
+  const oppTeam = myTeam === 'white' ? 'black' : 'white';
 
   const submit = () => {
     if (clues.some((c) => !c.trim())) return;
@@ -21,6 +25,14 @@ export default function CluePhase({ cr, myTeam, playerId, amClueGiver, secretCod
 
   return (
     <div style={s.wrap}>
+      <ClueTracker
+        history={history}
+        team={myTeam}
+        keywords={keywords}
+        teamColor={TEAM_COLORS[myTeam]}
+        title="YOUR KEYWORDS & CLUE HISTORY"
+      />
+
       {/* Nobody has claimed the clue-giver role yet */}
       {!mySubmitted && !claimedBy && (
         <div style={s.claimBox}>
@@ -88,6 +100,14 @@ export default function CluePhase({ cr, myTeam, playerId, amClueGiver, secretCod
       {mySubmitted && (
         <div style={s.waiting}>Your clues are submitted. Waiting for the other team…</div>
       )}
+
+      <ClueTracker
+        history={history}
+        team={oppTeam}
+        keywords={null}
+        teamColor={TEAM_COLORS[oppTeam]}
+        title="INTERCEPTION NOTES — OPPONENT CLUES BY COLUMN"
+      />
     </div>
   );
 }

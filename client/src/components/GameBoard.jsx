@@ -74,6 +74,7 @@ export default function GameBoard({ room, playerId, roomCode, keywords, secretCo
             secretCode={secretCode}
             keywords={keywords}
             players={room.players}
+            history={room.history}
           />
         )}
         {phase === 'guessing' && (
@@ -83,6 +84,7 @@ export default function GameBoard({ room, playerId, roomCode, keywords, secretCo
             myTeam={myTeam}
             playerId={playerId}
             keywords={keywords}
+            history={room.history}
           />
         )}
         {phase === 'reveal' && (
@@ -93,26 +95,25 @@ export default function GameBoard({ room, playerId, roomCode, keywords, secretCo
         )}
       </div>
 
-      {/* YOUR KEYWORDS */}
-      {myTeam && phase !== 'ended' && (
-        <ClueTracker
-          history={room.history}
-          team={myTeam}
-          keywords={keywords}
-          teamColor={TEAM_COLORS[myTeam]}
-          title="YOUR KEYWORDS & CLUE HISTORY"
-        />
-      )}
-
-      {/* INTERCEPTION NOTES */}
-      {myTeam && phase !== 'ended' && (
-        <ClueTracker
-          history={room.history}
-          team={oppTeam}
-          keywords={null}
-          teamColor={TEAM_COLORS[oppTeam]}
-          title="INTERCEPTION NOTES — OPPONENT CLUES BY COLUMN"
-        />
+      {/* Reveal: show both worksheets below the results (cluing/guessing
+          render their own worksheets inline paired with their actions). */}
+      {myTeam && phase === 'reveal' && (
+        <>
+          <ClueTracker
+            history={room.history}
+            team={myTeam}
+            keywords={keywords}
+            teamColor={TEAM_COLORS[myTeam]}
+            title="YOUR KEYWORDS & CLUE HISTORY"
+          />
+          <ClueTracker
+            history={room.history}
+            team={oppTeam}
+            keywords={null}
+            teamColor={TEAM_COLORS[oppTeam]}
+            title="INTERCEPTION NOTES — OPPONENT CLUES BY COLUMN"
+          />
+        </>
       )}
     </div>
   );

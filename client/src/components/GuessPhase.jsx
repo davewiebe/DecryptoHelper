@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import socket from '../socket';
+import ClueTracker from './ClueTracker';
 
 const NUMS = [1, 2, 3, 4];
+const TEAM_COLORS = { white: '#e8e8e8', black: '#7ab4ff' };
 
-export default function GuessPhase({ cr, myTeam, playerId, keywords }) {
+export default function GuessPhase({ cr, myTeam, playerId, keywords, history }) {
   const [interception, setInterception] = useState(['', '', '']);
   const [decoding, setDecoding] = useState(['', '', '']);
   const [sent, setSent] = useState({ interception: false, decoding: false });
@@ -25,6 +27,14 @@ export default function GuessPhase({ cr, myTeam, playerId, keywords }) {
 
   return (
     <div style={s.wrap}>
+      <ClueTracker
+        history={history}
+        team={myTeam}
+        keywords={keywords}
+        teamColor={TEAM_COLORS[myTeam]}
+        title="YOUR KEYWORDS & CLUE HISTORY"
+      />
+
       <div style={s.panel}>
         <div style={s.panelTitle}>DECODE your own code</div>
         {amClueGiver ? (
@@ -68,6 +78,14 @@ export default function GuessPhase({ cr, myTeam, playerId, keywords }) {
           </>
         )}
       </div>
+
+      <ClueTracker
+        history={history}
+        team={oppTeam}
+        keywords={null}
+        teamColor={TEAM_COLORS[oppTeam]}
+        title="INTERCEPTION NOTES — OPPONENT CLUES BY COLUMN"
+      />
 
       <div style={s.panel}>
         <div style={s.panelTitle}>INTERCEPT opponent's code</div>
