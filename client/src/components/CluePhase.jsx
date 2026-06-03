@@ -19,8 +19,6 @@ export default function CluePhase({ cr, myTeam, playerId, amClueGiver, secretCod
 
   const claim = () => socket.emit('game:claimClueGiver', { playerId });
 
-  const oppTeam = myTeam === 'white' ? 'black' : 'white';
-
   return (
     <div style={s.wrap}>
       <h2 style={s.phase}>CLUE PHASE — Round {cr.number}</h2>
@@ -97,20 +95,6 @@ export default function CluePhase({ cr, myTeam, playerId, amClueGiver, secretCod
         <StatusDot done={cr.cluesSubmitted.white} label="White clues" />
         <StatusDot done={cr.cluesSubmitted.black} label="Black clues" />
       </div>
-
-      {cr.cluesSubmitted[oppTeam] && (
-        <div style={s.oppClues}>
-          <div style={s.oppLabel}>Opponent clues (intercept after both submit):</div>
-          <div style={s.oppClueList}>
-            {cr.clues[oppTeam].map((c, i) => (
-              <div key={i} style={s.oppClueRow}>
-                <span style={s.oppNum}>{i + 1}</span>
-                <span>{c || '—'}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
     </div>
   );
 }
@@ -144,9 +128,4 @@ const s = {
   submitted: { color: '#4caf50', fontSize: 14, textAlign: 'center' },
   waiting: { background: '#13131a', border: '1px solid #2a2a3a', borderRadius: 10, padding: 24, textAlign: 'center', opacity: 0.6, fontSize: 14 },
   status: { display: 'flex', gap: 20 },
-  oppClues: { background: '#0d1a0d', border: '1px solid #1a3a1a', borderRadius: 10, padding: 16 },
-  oppLabel: { fontSize: 11, opacity: 0.5, marginBottom: 10, letterSpacing: 1 },
-  oppClueList: { display: 'flex', flexDirection: 'column', gap: 8 },
-  oppClueRow: { display: 'flex', alignItems: 'center', gap: 12, fontSize: 15 },
-  oppNum: { width: 20, height: 20, background: '#1a3a1a', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, color: '#4caf50', flexShrink: 0 },
 };
