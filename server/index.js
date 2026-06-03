@@ -8,6 +8,10 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server, { cors: { origin: '*' } });
 
+// Lightweight keepalive endpoint — clients ping this so Render's free tier
+// doesn't spin the service down for inactivity during a game.
+app.get('/healthz', (_req, res) => res.type('text').send('ok'));
+
 const CLIENT_BUILD = path.join(__dirname, '..', 'client', 'build');
 app.use(express.static(CLIENT_BUILD));
 app.get('*', (_req, res) => res.sendFile(path.join(CLIENT_BUILD, 'index.html')));

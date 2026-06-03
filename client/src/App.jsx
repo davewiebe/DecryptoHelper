@@ -64,6 +64,15 @@ export default function App() {
     return () => socket.disconnect();
   }, []);
 
+  // Keep the Render free-tier service awake while the app is open: ping the
+  // health endpoint every few minutes (it spins down after ~15 min idle).
+  useEffect(() => {
+    const ping = () => fetch('/healthz').catch(() => {});
+    ping();
+    const id = setInterval(ping, 4 * 60 * 1000);
+    return () => clearInterval(id);
+  }, []);
+
   const clearError = useCallback(() => dispatch({ type: 'CLEAR_ERROR' }), []);
   const setActive = useCallback((playerId) => dispatch({ type: 'SET_ACTIVE', playerId }), []);
   const addPlayer = useCallback((name) => socket.emit('room:addLocalPlayer', { name }), []);
