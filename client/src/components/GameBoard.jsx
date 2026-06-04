@@ -5,6 +5,7 @@ import RevealPhase from './RevealPhase';
 import EndedPhase from './EndedPhase';
 import ScoreBar from './ScoreBar';
 import ClueTracker from './ClueTracker';
+import RoundResult from './RoundResult';
 
 const TEAM_COLORS = { white: '#e8e8e8', black: '#7ab4ff' };
 
@@ -100,8 +101,8 @@ export default function GameBoard({ room, playerId, roomCode, keywords, secretCo
         )}
       </div>
 
-      {/* Reveal: show both worksheets below the results (cluing/guessing
-          render their own worksheets inline paired with their actions). */}
+      {/* Reveal: worksheets with this round's results beneath each
+          (cluing/guessing render their own worksheets inline). */}
       {myTeam && phase === 'reveal' && (
         <>
           <ClueTracker
@@ -111,6 +112,7 @@ export default function GameBoard({ room, playerId, roomCode, keywords, secretCo
             teamColor={TEAM_COLORS[myTeam]}
             title="YOUR KEYWORDS & CLUE HISTORY"
           />
+          <RoundResult cr={cr} team={myTeam} />
           <ClueTracker
             history={room.history}
             team={oppTeam}
@@ -118,6 +120,7 @@ export default function GameBoard({ room, playerId, roomCode, keywords, secretCo
             teamColor={TEAM_COLORS[oppTeam]}
             title="INTERCEPTION NOTES — OPPONENT CLUES BY COLUMN"
           />
+          <RoundResult cr={cr} team={oppTeam} />
         </>
       )}
     </div>
