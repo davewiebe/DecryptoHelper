@@ -41,8 +41,8 @@ export default function CluePhase({ cr, myTeam, playerId, amClueGiver, secretCod
         </div>
       )}
 
-      {/* I'm the clue giver — show code + clue form */}
-      {amClueGiver && secretCode && (
+      {/* I'm the clue giver and haven't submitted — show code + clue form */}
+      {amClueGiver && secretCode && !mySubmitted && !submitted && (
         <div style={s.codeBox}>
           <div style={s.codeLabel}>Your secret code — give clues in this order:</div>
           <div style={s.codeRow}>
@@ -53,34 +53,31 @@ export default function CluePhase({ cr, myTeam, playerId, amClueGiver, secretCod
               </div>
             ))}
           </div>
-          {!mySubmitted && !submitted && (
-            <div style={s.clueForm}>
-              {secretCode.map((n, i) => (
-                <div key={i} style={s.clueRow}>
-                  <span style={s.clueNum}>{n}</span>
-                  <input
-                    style={s.clueInput}
-                    placeholder={`Clue for "${keywords[n - 1] || n}"`}
-                    value={clues[i]}
-                    onChange={(e) => {
-                      const next = [...clues];
-                      next[i] = e.target.value;
-                      setClues(next);
-                    }}
-                    onKeyDown={(e) => e.key === 'Enter' && i === 2 && submit()}
-                  />
-                </div>
-              ))}
-              <button
-                style={{ ...s.submitBtn, opacity: clues.every((c) => c.trim()) ? 1 : 0.4 }}
-                onClick={submit}
-                disabled={clues.some((c) => !c.trim())}
-              >
-                Submit Clues
-              </button>
-            </div>
-          )}
-          {(mySubmitted || submitted) && <div style={s.submitted}>Clues submitted — waiting for opponent…</div>}
+          <div style={s.clueForm}>
+            {secretCode.map((n, i) => (
+              <div key={i} style={s.clueRow}>
+                <span style={s.clueNum}>{n}</span>
+                <input
+                  style={s.clueInput}
+                  placeholder={`Clue for "${keywords[n - 1] || n}"`}
+                  value={clues[i]}
+                  onChange={(e) => {
+                    const next = [...clues];
+                    next[i] = e.target.value;
+                    setClues(next);
+                  }}
+                  onKeyDown={(e) => e.key === 'Enter' && i === 2 && submit()}
+                />
+              </div>
+            ))}
+            <button
+              style={{ ...s.submitBtn, opacity: clues.every((c) => c.trim()) ? 1 : 0.4 }}
+              onClick={submit}
+              disabled={clues.some((c) => !c.trim())}
+            >
+              Submit Clues
+            </button>
+          </div>
         </div>
       )}
 
@@ -97,7 +94,7 @@ export default function CluePhase({ cr, myTeam, playerId, amClueGiver, secretCod
       )}
 
       {/* My team's clues are in */}
-      {mySubmitted && (
+      {(mySubmitted || submitted) && (
         <div style={s.waiting}>Your clues are submitted. Waiting for the other team…</div>
       )}
 
@@ -128,6 +125,5 @@ const s = {
   clueNum: { fontSize: 20, fontWeight: 'bold', color: '#a0c4ff', width: 24, textAlign: 'center' },
   clueInput: { flex: 1, background: '#0a0a0f', border: '1px solid #3a3a5a', borderRadius: 6, color: '#e0e0e0', padding: '9px 12px', fontFamily: 'inherit', fontSize: 15 },
   submitBtn: { background: '#3a6fd8', color: '#fff', border: 'none', borderRadius: 6, padding: '12px 0', cursor: 'pointer', fontFamily: 'inherit', fontSize: 14, letterSpacing: 1 },
-  submitted: { color: '#4caf50', fontSize: 14, textAlign: 'center' },
   waiting: { background: '#13131a', border: '1px solid #2a2a3a', borderRadius: 10, padding: 24, textAlign: 'center', opacity: 0.6, fontSize: 14 },
 };
