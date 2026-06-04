@@ -44,21 +44,26 @@ export default function GameBoard({ room, playerId, roomCode, keywords, secretCo
           <h2 style={s.phaseHeader}>
             {phase === 'cluing' ? 'CLUE PHASE' : 'GUESSING PHASE'} — Round {cr.number}
           </h2>
-          <div style={s.indicators}>
-            {phase === 'cluing' ? (
-              <>
-                <StatusDot done={cr.cluesSubmitted.white} label="White clues" />
-                <StatusDot done={cr.cluesSubmitted.black} label="Black clues" />
-              </>
-            ) : (
-              <>
-                <StatusDot done={cr.decodingSubmitted.white} label="White decode" />
-                <StatusDot done={cr.decodingSubmitted.black} label="Black decode" />
-                <StatusDot done={cr.interceptionSubmitted.white} label="White intercept" />
-                <StatusDot done={cr.interceptionSubmitted.black} label="Black intercept" />
-              </>
-            )}
-          </div>
+          {phase === 'cluing' ? (
+            <div style={s.indicators}>
+              <StatusDot done={cr.cluesSubmitted.white} label="White clues" />
+              <StatusDot done={cr.cluesSubmitted.black} label="Black clues" />
+            </div>
+          ) : (
+            <div style={s.submissionLine}>
+              <span style={s.subStatusLabel}>Submission status:</span>
+              <span style={s.subGroup}>
+                Decode:
+                <CheckBox done={cr.decodingSubmitted.white} color={TEAM_COLORS.white} />
+                <CheckBox done={cr.decodingSubmitted.black} color={TEAM_COLORS.black} />
+              </span>
+              <span style={s.subGroup}>
+                Intercept:
+                <CheckBox done={cr.interceptionSubmitted.white} color={TEAM_COLORS.white} />
+                <CheckBox done={cr.interceptionSubmitted.black} color={TEAM_COLORS.black} />
+              </span>
+            </div>
+          )}
         </div>
       )}
 
@@ -128,11 +133,38 @@ function StatusDot({ done, label }) {
   );
 }
 
+function CheckBox({ done, color }) {
+  return (
+    <span
+      style={{
+        display: 'inline-flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        width: 16,
+        height: 16,
+        marginLeft: 3,
+        borderRadius: 3,
+        border: `1.5px solid ${color}`,
+        background: done ? color : 'transparent',
+        color: '#0a0a0f',
+        fontSize: 11,
+        fontWeight: 'bold',
+        lineHeight: 1,
+      }}
+    >
+      {done ? '✓' : ''}
+    </span>
+  );
+}
+
 const s = {
   page: { maxWidth: 800, margin: '0 auto', padding: 12, width: '100%', display: 'flex', flexDirection: 'column', gap: 16 },
   roundStatus: { display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10 },
   phaseHeader: { margin: 0, fontSize: 16, letterSpacing: 3, color: '#a0c4ff', textAlign: 'center' },
   indicators: { display: 'flex', flexWrap: 'wrap', gap: 12, justifyContent: 'center' },
+  submissionLine: { display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'center', gap: 12, fontSize: 13 },
+  subStatusLabel: { opacity: 0.6 },
+  subGroup: { display: 'inline-flex', alignItems: 'center', gap: 2 },
   topBar: { display: 'flex', alignItems: 'center', gap: 16 },
   roomInfo: { display: 'flex', flexDirection: 'column' },
   roomCode: { fontSize: 20, letterSpacing: 4, color: '#a0c4ff', fontWeight: 'bold' },
