@@ -93,7 +93,7 @@ export default function GameBoard({ room, playerId, roomCode, keywords, secretCo
             teamColor={TEAM_COLORS[myTeam]}
             title="YOUR KEYWORDS & CLUE HISTORY"
           />
-          <RoundResult cr={cr} team={myTeam} players={room.players} />
+          <RoundResult cr={cr} team={myTeam} players={room.players} mine />
           <ClueTracker
             history={room.history}
             team={oppTeam}
