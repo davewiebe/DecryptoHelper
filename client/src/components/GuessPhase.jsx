@@ -5,7 +5,7 @@ import ClueTracker from './ClueTracker';
 const NUMS = [1, 2, 3, 4];
 const TEAM_COLORS = { white: '#e8e8e8', black: '#7ab4ff' };
 
-export default function GuessPhase({ cr, myTeam, playerId, keywords, history }) {
+export default function GuessPhase({ cr, myTeam, playerId, keywords, history, players }) {
   const [interception, setInterception] = useState(['', '', '']);
   const [decoding, setDecoding] = useState(['', '', '']);
   const [sent, setSent] = useState({ interception: false, decoding: false });
@@ -17,6 +17,7 @@ export default function GuessPhase({ cr, myTeam, playerId, keywords, history }) 
   const myClues = cr.clues[myTeam];
   // The clue giver knows their own code, so they can't decode it — only intercept.
   const amClueGiver = cr.clueGivers[myTeam] === playerId;
+  const giverName = (players || []).find((p) => p.id === cr.clueGivers[myTeam])?.name;
 
   const submitGuess = (type, guess) => {
     socket.emit('game:submitGuess', { playerId, type, guess: guess.map(Number) });
@@ -36,17 +37,17 @@ export default function GuessPhase({ cr, myTeam, playerId, keywords, history }) 
       />
 
       <div style={s.panel}>
-        <div style={s.panelTitle}>DECODE your own code</div>
+        <div style={s.panelTitle}>Decrypt your teammate's clues</div>
         {sent.decoding || cr.decodingSubmitted[myTeam] ? (
-          <div style={s.done}>Decoding submitted</div>
+          <div style={s.done}>Decryption submitted</div>
         ) : amClueGiver ? (
           <div style={s.giverNote}>
-            You gave the clues this round, so you can't decode your own code.
-            A teammate needs to decode it.
+            You gave the clues this round, so you can't decrypt them.
+            A teammate needs to decrypt them.
           </div>
         ) : (
           <>
-            <div style={s.subLabel}>Your clues (confirm the order):</div>
+            <div style={s.subLabel}>{giverName ? `${giverName}'s` : "Your teammate's"} clues (select the keywords):</div>
             {myClues.map((clue, i) => (
               <div key={i} style={s.clueRow}>
                 <span style={s.clueText}>{clue}</span>
@@ -78,7 +79,7 @@ export default function GuessPhase({ cr, myTeam, playerId, keywords, history }) 
         team={oppTeam}
         keywords={null}
         teamColor={TEAM_COLORS[oppTeam]}
-        title="INTERCEPTION NOTES — OPPONENT CLUES BY COLUMN"
+        title="OPPONENTS' CLUES BY COLUMN"
       />
 
       <div style={s.panel}>
