@@ -9,12 +9,9 @@ export default function Home() {
 
   const create = () => {
     if (!name.trim()) return;
-    socket.emit('room:create', { name: name.trim(), clientId: getClientId() });
-  };
-
-  const createTest = () => {
-    if (!name.trim()) return;
-    socket.emit('room:create', { name: name.trim(), seed: true, clientId: getClientId() });
+    // Typing "Davetest" spins up the pre-seeded 4-player test room.
+    const seed = name.trim().toLowerCase() === 'davetest';
+    socket.emit('room:create', { name: name.trim(), seed, clientId: getClientId() });
   };
 
   const join = () => {
@@ -34,28 +31,19 @@ export default function Home() {
           placeholder="Your name"
           value={name}
           onChange={(e) => setName(e.target.value)}
-          onKeyDown={(e) => e.key === 'Enter' && mode === 'join' && join()}
+          onKeyDown={(e) => {
+            if (e.key !== 'Enter') return;
+            if (mode === 'join') join();
+            else create();
+          }}
           autoFocus
         />
 
         {!mode && (
           <div style={s.row}>
-            <button style={s.btn} onClick={() => setMode('create')}>Create Room</button>
+            <button style={s.btn} onClick={create} disabled={!name.trim()}>Create Room</button>
             <button style={{ ...s.btn, ...s.btnOutline }} onClick={() => setMode('join')}>Join Room</button>
           </div>
-        )}
-
-        {mode === 'create' && (
-          <>
-            <button style={s.btn} onClick={create} disabled={!name.trim()}>
-              Create &amp; Host
-            </button>
-            <button style={{ ...s.btn, ...s.btnOutline }} onClick={createTest} disabled={!name.trim()}>
-              Create Test Room (4 players + words)
-            </button>
-            <span style={s.hint}>Test room: 2 players per team, keywords pre-filled. You control all 4.</span>
-            <button style={s.back} onClick={() => setMode(null)}>Back</button>
-          </>
         )}
 
         {mode === 'join' && (
@@ -102,7 +90,6 @@ const s = {
   },
   title: { margin: 0, fontSize: 42, letterSpacing: 8, color: '#a0c4ff' },
   sub: { margin: 0, opacity: 0.5, fontSize: 13 },
-  hint: { fontSize: 11, opacity: 0.45, lineHeight: 1.5 },
   input: {
     background: '#1e1e2e',
     border: '1px solid #3a3a5a',
