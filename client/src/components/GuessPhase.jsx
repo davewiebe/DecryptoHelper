@@ -37,12 +37,12 @@ export default function GuessPhase({ cr, myTeam, playerId, keywords, history }) 
 
       <div style={s.panel}>
         <div style={s.panelTitle}>DECODE your own code</div>
-        {amClueGiver ? (
+        {sent.decoding || cr.decodingSubmitted[myTeam] ? (
+          <div style={s.done}>Decoding submitted</div>
+        ) : amClueGiver ? (
           <div style={s.giverNote}>
             You gave the clues this round, so you can't decode your own code.
-            {cr.decodingSubmitted[myTeam]
-              ? ' Your teammates have decoded it.'
-              : ' A teammate needs to decode it.'}
+            A teammate needs to decode it.
           </div>
         ) : (
           <>
@@ -59,22 +59,16 @@ export default function GuessPhase({ cr, myTeam, playerId, keywords, history }) 
                     next[i] = v;
                     setDecoding(next);
                   }}
-                  disabled={sent.decoding || cr.decodingSubmitted[myTeam]}
                 />
               </div>
             ))}
-            {!sent.decoding && !cr.decodingSubmitted[myTeam] && (
-              <button
-                style={{ ...s.submitBtn, opacity: valid(decoding) ? 1 : 0.4 }}
-                onClick={() => submitGuess('decoding', decoding)}
-                disabled={!valid(decoding)}
-              >
-                Submit Decoding
-              </button>
-            )}
-            {(sent.decoding || cr.decodingSubmitted[myTeam]) && (
-              <div style={s.done}>Decoding submitted</div>
-            )}
+            <button
+              style={{ ...s.submitBtn, opacity: valid(decoding) ? 1 : 0.4 }}
+              onClick={() => submitGuess('decoding', decoding)}
+              disabled={!valid(decoding)}
+            >
+              Submit Decoding
+            </button>
           </>
         )}
       </div>
@@ -89,33 +83,33 @@ export default function GuessPhase({ cr, myTeam, playerId, keywords, history }) 
 
       <div style={s.panel}>
         <div style={s.panelTitle}>INTERCEPT opponent's code</div>
-        <div style={s.subLabel}>Their clues (guess which keyword 1–4 each refers to):</div>
-        {oppClues.map((clue, i) => (
-          <div key={i} style={s.clueRow}>
-            <span style={s.clueText}>{clue}</span>
-            <Select
-              value={interception[i]}
-              options={NUMS}
-              onChange={(v) => {
-                const next = [...interception];
-                next[i] = v;
-                setInterception(next);
-              }}
-              disabled={sent.interception || cr.interceptionSubmitted[myTeam]}
-            />
-          </div>
-        ))}
-        {!sent.interception && !cr.interceptionSubmitted[myTeam] && (
-          <button
-            style={{ ...s.submitBtn, opacity: valid(interception) ? 1 : 0.4 }}
-            onClick={() => submitGuess('interception', interception)}
-            disabled={!valid(interception)}
-          >
-            Submit Interception
-          </button>
-        )}
-        {(sent.interception || cr.interceptionSubmitted[myTeam]) && (
+        {sent.interception || cr.interceptionSubmitted[myTeam] ? (
           <div style={s.done}>Interception submitted</div>
+        ) : (
+          <>
+            <div style={s.subLabel}>Their clues (guess which keyword 1–4 each refers to):</div>
+            {oppClues.map((clue, i) => (
+              <div key={i} style={s.clueRow}>
+                <span style={s.clueText}>{clue}</span>
+                <Select
+                  value={interception[i]}
+                  options={NUMS}
+                  onChange={(v) => {
+                    const next = [...interception];
+                    next[i] = v;
+                    setInterception(next);
+                  }}
+                />
+              </div>
+            ))}
+            <button
+              style={{ ...s.submitBtn, opacity: valid(interception) ? 1 : 0.4 }}
+              onClick={() => submitGuess('interception', interception)}
+              disabled={!valid(interception)}
+            >
+              Submit Interception
+            </button>
+          </>
         )}
       </div>
     </div>
