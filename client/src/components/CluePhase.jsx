@@ -45,14 +45,6 @@ export default function CluePhase({ cr, myTeam, playerId, amClueGiver, secretCod
       {amClueGiver && secretCode && !mySubmitted && !submitted && (
         <div style={s.codeBox}>
           <div style={s.codeLabel}>Your secret code — give clues in this order:</div>
-          <div style={s.codeRow}>
-            {secretCode.map((n, i) => (
-              <div key={i} style={s.codeEntry}>
-                <div style={s.codeNum}>{n}</div>
-                <div style={s.codeWord}>{keywords[n - 1] || '?'}</div>
-              </div>
-            ))}
-          </div>
           <div style={s.clueForm}>
             {secretCode.map((n, i) => (
               <div key={i} style={s.clueRow}>
@@ -116,10 +108,6 @@ const s = {
   claimBtn: { background: '#3a6fd8', color: '#fff', border: 'none', borderRadius: 8, padding: '12px 28px', cursor: 'pointer', fontFamily: 'inherit', fontSize: 15, letterSpacing: 1 },
   codeBox: { background: '#13131a', border: '1px solid #2a2a3a', borderRadius: 10, padding: 20, display: 'flex', flexDirection: 'column', gap: 16 },
   codeLabel: { fontSize: 12, opacity: 0.6, letterSpacing: 1 },
-  codeRow: { display: 'flex', gap: 12 },
-  codeEntry: { flex: 1, background: '#1e1e2e', border: '1px solid #3a3a5a', borderRadius: 8, padding: '12px 8px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6 },
-  codeNum: { fontSize: 24, fontWeight: 'bold', color: '#a0c4ff' },
-  codeWord: { fontSize: 13, opacity: 0.8, textAlign: 'center' },
   clueForm: { display: 'flex', flexDirection: 'column', gap: 10 },
   clueRow: { display: 'flex', alignItems: 'center', gap: 12 },
   clueNum: { fontSize: 20, fontWeight: 'bold', color: '#a0c4ff', width: 24, textAlign: 'center' },
