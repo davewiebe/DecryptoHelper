@@ -117,7 +117,7 @@ export default function App() {
   const activePriv = priv[activeId] || { keywords: [], secretCode: null };
 
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+    <div style={{ minHeight: '100dvh', display: 'flex', flexDirection: 'column' }}>
       {!connected && (
         <div style={styles.reconnectBanner}>Reconnecting…</div>
       )}
