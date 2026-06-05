@@ -39,26 +39,30 @@ export default function RoundResult({ cr, team, players, mine }) {
   // Decryption: this team decoding their own code. Success neutral (white),
   // failure highlighted.
   const decodeOk = arrEq(cr.decodingGuesses[team], code);
-  const decodeLabel = `${mine ? "Your team's" : `${cap(team)} team's`} decryption attempt: ${decodeOk ? '✓ Successful' : '✗ Unsuccessful'}`;
+  const decodePrefix = `${mine ? "Your team's" : `${cap(team)} team's`} decryption attempt:`;
+  const decodeStatus = decodeOk ? '✓ Successful' : '✗ Unsuccessful';
 
   // Interception: the opponent guessing this team's code. Success highlighted
   // (they cracked it), failure neutral.
   const interceptOk = arrEq(cr.interceptionGuesses[opp], code);
-  const interceptLabel = `${cap(opp)} team interception attempt: ${interceptOk ? '✓ Successful' : '✗ Unsuccessful'}`;
+  const interceptPrefix = `${cap(opp)} team interception attempt:`;
+  const interceptStatus = interceptOk ? '✓ Successful' : '✗ Unsuccessful';
 
   return (
     <div style={s.wrap}>
       <Row label={`${giverName ? `${giverName}'s` : "Clue giver's"} clues`} cells={columns(code)} mark={false} />
-      <Row label={decodeLabel} labelColor={decodeOk ? WHITE : highlight} cells={columns(cr.decodingGuesses[team])} mark />
-      <Row label={interceptLabel} labelColor={interceptOk ? highlight : WHITE} cells={columns(cr.interceptionGuesses[opp])} mark />
+      <Row label={decodePrefix} status={decodeStatus} statusColor={decodeOk ? WHITE : highlight} cells={columns(cr.decodingGuesses[team])} mark />
+      <Row label={interceptPrefix} status={interceptStatus} statusColor={interceptOk ? highlight : WHITE} cells={columns(cr.interceptionGuesses[opp])} mark />
     </div>
   );
 }
 
-function Row({ label, cells, mark, labelColor }) {
+function Row({ label, cells, mark, status, statusColor }) {
   return (
     <div style={s.row}>
-      <div style={labelColor ? { ...s.statusLabel, color: labelColor } : s.label}>{label}</div>
+      <div style={status ? s.statusLabel : s.label}>
+        {label}{status && <> <span style={{ color: statusColor }}>{status}</span></>}
+      </div>
       <div style={s.grid}>
         {cells.map((c, i) => (
           <div key={i} style={s.cell}>
