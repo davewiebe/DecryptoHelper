@@ -6,12 +6,13 @@ import React from 'react';
 //  - Decode result:       the team's own decoding guess
 //  - Interception result: the opponent's interception of this team's code
 // Wrong placements (decode / intercept) are shown in red.
-export default function RoundResult({ cr, team }) {
+export default function RoundResult({ cr, team, players }) {
   if (!cr || !cr.codes || !cr.codes[team]) return null;
 
   const opp = team === 'white' ? 'black' : 'white';
   const clues = cr.clues[team] || [];
   const code = cr.codes[team] || [];
+  const giverName = (players || []).find((p) => p.id === cr.clueGivers[team])?.name;
 
   // Place each clue into its assigned column (guesses are 3 distinct columns,
   // so at most one clue per column).
@@ -25,8 +26,8 @@ export default function RoundResult({ cr, team }) {
 
   return (
     <div style={s.wrap}>
-      <Row label="New clue" cells={columns(code)} mark={false} />
-      <Row label="Decode result" cells={columns(cr.decodingGuesses[team])} mark />
+      <Row label={`${giverName ? `${giverName}'s` : "Clue giver's"} clues`} cells={columns(code)} mark={false} />
+      <Row label="Decryption result" cells={columns(cr.decodingGuesses[team])} mark />
       <Row label="Interception result" cells={columns(cr.interceptionGuesses[opp])} mark />
     </div>
   );
