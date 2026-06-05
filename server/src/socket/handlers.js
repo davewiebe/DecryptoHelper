@@ -10,8 +10,10 @@ const {
 const { startRound, submitClues, submitGuess } = require('../game/game');
 
 // On disconnect, keep a device's players for this long so a reconnect can
-// reclaim them instead of dropping out of the game.
-const GRACE_MS = 2 * 60 * 1000;
+// reclaim them instead of dropping out of the game. Generous, because phones
+// lock/background sockets constantly; the free instance spins down after ~15
+// min idle anyway, which caps how long an abandoned room can actually live.
+const GRACE_MS = 60 * 60 * 1000;
 const pendingRemovals = new Map(); // `${code}:${clientId}` -> timeout
 
 function scheduleRemoval(io, code, clientId) {

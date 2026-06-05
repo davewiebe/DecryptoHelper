@@ -98,11 +98,19 @@ export default function App() {
 
   // Keep the Render free-tier service awake while the app is open: ping the
   // health endpoint every few minutes (it spins down after ~15 min idle).
+  // Also ping the moment the tab regains focus, to wake it on return.
   useEffect(() => {
     const ping = () => fetch('/healthz').catch(() => {});
     ping();
     const id = setInterval(ping, 4 * 60 * 1000);
-    return () => clearInterval(id);
+    const onVisible = () => {
+      if (document.visibilityState === 'visible') ping();
+    };
+    document.addEventListener('visibilitychange', onVisible);
+    return () => {
+      clearInterval(id);
+      document.removeEventListener('visibilitychange', onVisible);
+    };
   }, []);
 
   const clearError = useCallback(() => dispatch({ type: 'CLEAR_ERROR' }), []);
