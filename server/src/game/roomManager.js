@@ -15,14 +15,14 @@ function genPlayerId() {
   return `p${Date.now().toString(36)}${playerSeq}`;
 }
 
-function createRoom(socketId, hostName) {
+function createRoom(socketId, clientId, hostName) {
   const code = generateCode();
   const hostId = genPlayerId();
   const room = {
     code,
     phase: 'lobby',
     hostId,
-    players: new Map([[hostId, { id: hostId, name: hostName, team: null, ownerSocketId: socketId }]]),
+    players: new Map([[hostId, { id: hostId, name: hostName, team: null, ownerSocketId: socketId, clientId }]]),
     teams: {
       white: { keywords: ['', '', '', ''], interceptions: 0, miscommunications: 0 },
       black: { keywords: ['', '', '', ''], interceptions: 0, miscommunications: 0 },
@@ -36,11 +36,11 @@ function createRoom(socketId, hostName) {
   return { room, playerId: hostId };
 }
 
-function addPlayer(code, socketId, name) {
+function addPlayer(code, socketId, clientId, name) {
   const room = rooms.get(code);
   if (!room) return null;
   const id = genPlayerId();
-  room.players.set(id, { id, name, team: null, ownerSocketId: socketId });
+  room.players.set(id, { id, name, team: null, ownerSocketId: socketId, clientId });
   return { room, playerId: id };
 }
 
@@ -55,12 +55,37 @@ function removePlayer(code, playerId) {
   return reconcile(code, room);
 }
 
-// Remove every player owned by a given socket (covers disconnect / full leave).
-function removePlayersBySocket(code, socketId) {
+// Detach (don't remove) a socket's players on disconnect, so a quick
+// reconnect can reclaim them. Returns the room (not deleted here).
+function detachSocket(code, socketId) {
+  const room = rooms.get(code);
+  if (!room) return null;
+  for (const p of room.players.values()) {
+    if (p.ownerSocketId === socketId) p.ownerSocketId = null;
+  }
+  return room;
+}
+
+// Re-attach all of a device's players (matched by clientId) to a new socket.
+function reattachClient(code, clientId, socketId) {
+  const room = rooms.get(code);
+  if (!room) return null;
+  const playerIds = [];
+  for (const p of room.players.values()) {
+    if (p.clientId === clientId) {
+      p.ownerSocketId = socketId;
+      playerIds.push(p.id);
+    }
+  }
+  return { room, playerIds };
+}
+
+// Remove every player belonging to a device (explicit leave / grace expiry).
+function removePlayersByClient(code, clientId) {
   const room = rooms.get(code);
   if (!room) return null;
   for (const [pid, p] of [...room.players]) {
-    if (p.ownerSocketId === socketId) room.players.delete(pid);
+    if (p.clientId === clientId) room.players.delete(pid);
   }
   return reconcile(code, room);
 }
@@ -109,4 +134,13 @@ function roomView(room) {
   };
 }
 
-module.exports = { createRoom, addPlayer, getRoom, removePlayer, removePlayersBySocket, roomView };
+module.exports = {
+  createRoom,
+  addPlayer,
+  getRoom,
+  removePlayer,
+  detachSocket,
+  reattachClient,
+  removePlayersByClient,
+  roomView,
+};

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import socket from '../socket';
+import socket, { getClientId } from '../socket';
 
 export default function Home() {
   const [name, setName] = useState('');
@@ -8,17 +8,17 @@ export default function Home() {
 
   const create = () => {
     if (!name.trim()) return;
-    socket.emit('room:create', { name: name.trim() });
+    socket.emit('room:create', { name: name.trim(), clientId: getClientId() });
   };
 
   const createTest = () => {
     if (!name.trim()) return;
-    socket.emit('room:create', { name: name.trim(), seed: true });
+    socket.emit('room:create', { name: name.trim(), seed: true, clientId: getClientId() });
   };
 
   const join = () => {
     if (!name.trim() || !joinCode.trim()) return;
-    socket.emit('room:join', { name: name.trim(), code: joinCode.trim().toUpperCase() });
+    socket.emit('room:join', { name: name.trim(), code: joinCode.trim().toUpperCase(), clientId: getClientId() });
   };
 
   return (

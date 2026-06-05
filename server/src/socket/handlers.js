@@ -2,10 +2,39 @@ const {
   createRoom,
   addPlayer,
   getRoom,
-  removePlayersBySocket,
+  detachSocket,
+  reattachClient,
+  removePlayersByClient,
   roomView,
 } = require('../game/roomManager');
 const { startRound, submitClues, submitGuess } = require('../game/game');
+
+// On disconnect, keep a device's players for this long so a reconnect can
+// reclaim them instead of dropping out of the game.
+const GRACE_MS = 2 * 60 * 1000;
+const pendingRemovals = new Map(); // `${code}:${clientId}` -> timeout
+
+function scheduleRemoval(io, code, clientId) {
+  const key = `${code}:${clientId}`;
+  clearTimeout(pendingRemovals.get(key));
+  pendingRemovals.set(
+    key,
+    setTimeout(() => {
+      pendingRemovals.delete(key);
+      const room = removePlayersByClient(code, clientId);
+      if (room) {
+        broadcastRoom(io, room);
+        sendPrivate(io, room);
+      }
+    }, GRACE_MS)
+  );
+}
+
+function cancelRemoval(code, clientId) {
+  const key = `${code}:${clientId}`;
+  clearTimeout(pendingRemovals.get(key));
+  pendingRemovals.delete(key);
+}
 
 function emit(io, room, event, data) {
   io.to(room.code).emit(event, data);
@@ -47,12 +76,12 @@ function sendPrivate(io, room) {
 }
 
 // Populate a fresh room with 4 players (2 per team) + keywords, all owned by
-// the creating socket. Returns the extra (non-host) playerIds. Test only.
-function seedTestRoom(room, socketId, hostId) {
+// the creating socket/device. Returns the extra (non-host) playerIds.
+function seedTestRoom(room, socketId, clientId, hostId) {
   room.players.get(hostId).team = 'white';
-  const w2 = addPlayer(room.code, socketId, 'White 2').playerId;
-  const b1 = addPlayer(room.code, socketId, 'Black 1').playerId;
-  const b2 = addPlayer(room.code, socketId, 'Black 2').playerId;
+  const w2 = addPlayer(room.code, socketId, clientId, 'White 2').playerId;
+  const b1 = addPlayer(room.code, socketId, clientId, 'Black 1').playerId;
+  const b2 = addPlayer(room.code, socketId, clientId, 'Black 2').playerId;
   room.players.get(w2).team = 'white';
   room.players.get(b1).team = 'black';
   room.players.get(b2).team = 'black';
@@ -63,6 +92,7 @@ function seedTestRoom(room, socketId, hostId) {
 
 function registerHandlers(io, socket) {
   let currentRoom = null;
+  let clientId = null; // stable per-device id, survives socket reconnects
   const owned = new Set(); // playerIds this socket controls
 
   function ownedPlayer(room, playerId) {
@@ -70,9 +100,21 @@ function registerHandlers(io, socket) {
     return room.players.get(playerId) || null;
   }
 
-  function cleanup() {
+  // Disconnect: keep the device's players for a grace period so a reconnect
+  // (room:resume) can reclaim them. Explicit leave removes immediately.
+  function onDisconnect() {
+    if (!currentRoom || !clientId) return;
+    const room = detachSocket(currentRoom, socket.id);
+    if (room) {
+      sendPrivate(io, room);
+      scheduleRemoval(io, currentRoom, clientId);
+    }
+  }
+
+  function onLeave() {
     if (!currentRoom) return;
-    const room = removePlayersBySocket(currentRoom, socket.id);
+    if (clientId) cancelRemoval(currentRoom, clientId);
+    const room = clientId ? removePlayersByClient(currentRoom, clientId) : null;
     if (room) {
       broadcastRoom(io, room);
       sendPrivate(io, room);
@@ -81,16 +123,17 @@ function registerHandlers(io, socket) {
     currentRoom = null;
   }
 
-  socket.on('room:create', ({ name, seed }) => {
+  socket.on('room:create', ({ name, seed, clientId: cid }) => {
     if (!name) return;
-    const { room, playerId } = createRoom(socket.id, name);
+    clientId = cid || socket.id;
+    const { room, playerId } = createRoom(socket.id, clientId, name);
     socket.join(room.code);
     currentRoom = room.code;
     owned.add(playerId);
     socket.emit('room:joined', { code: room.code, playerId });
 
     if (seed) {
-      const extras = seedTestRoom(room, socket.id, playerId);
+      const extras = seedTestRoom(room, socket.id, clientId, playerId);
       extras.forEach((id) => owned.add(id));
       socket.emit('room:seededPlayers', { playerIds: extras });
     }
@@ -99,17 +142,35 @@ function registerHandlers(io, socket) {
     sendPrivate(io, room);
   });
 
-  socket.on('room:join', ({ code, name }) => {
+  socket.on('room:join', ({ code, name, clientId: cid }) => {
     const room = getRoom(code);
     if (!room) return socket.emit('room:error', { message: 'Room not found' });
     if (room.phase !== 'lobby') return socket.emit('room:error', { message: 'Game already started' });
     if (!name) return;
-    const { playerId } = addPlayer(code, socket.id, name);
+    clientId = cid || socket.id;
+    const { playerId } = addPlayer(code, socket.id, clientId, name);
     socket.join(code);
     currentRoom = code;
     owned.add(playerId);
     socket.emit('room:joined', { code, playerId });
     broadcastRoom(io, room);
+    sendPrivate(io, room);
+  });
+
+  // Reconnect: re-attach this device's existing players to the new socket.
+  socket.on('room:resume', ({ code, clientId: cid }) => {
+    const room = getRoom(code);
+    if (!room || !cid) return socket.emit('room:resumeFailed', {});
+    const { playerIds } = reattachClient(code, cid, socket.id);
+    if (!playerIds.length) return socket.emit('room:resumeFailed', {});
+    clientId = cid;
+    currentRoom = code;
+    cancelRemoval(code, cid);
+    owned.clear();
+    playerIds.forEach((id) => owned.add(id));
+    socket.join(code);
+    socket.emit('room:resumed', { code, playerIds });
+    socket.emit('room:state', roomView(room));
     sendPrivate(io, room);
   });
 
@@ -119,7 +180,7 @@ function registerHandlers(io, socket) {
     if (!room) return;
     if (room.phase !== 'lobby') return socket.emit('room:error', { message: 'Can only add players in the lobby' });
     if (!name) return;
-    const { playerId } = addPlayer(currentRoom, socket.id, name);
+    const { playerId } = addPlayer(currentRoom, socket.id, clientId, name);
     owned.add(playerId);
     socket.emit('room:localPlayerAdded', { playerId });
     broadcastRoom(io, room);
@@ -235,8 +296,8 @@ function registerHandlers(io, socket) {
     emit(io, room, 'game:roundStarted', { round: room.round });
   });
 
-  socket.on('disconnect', cleanup);
-  socket.on('room:leave', cleanup);
+  socket.on('disconnect', onDisconnect);
+  socket.on('room:leave', onLeave);
 }
 
 module.exports = { registerHandlers };
