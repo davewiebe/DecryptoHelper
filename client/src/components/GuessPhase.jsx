@@ -68,7 +68,7 @@ export default function GuessPhase({ cr, myTeam, playerId, keywords, history, pl
               onClick={() => submitGuess('decoding', decoding)}
               disabled={!valid(decoding)}
             >
-              Submit Decoding
+              Submit Decryption
             </button>
           </>
         )}
