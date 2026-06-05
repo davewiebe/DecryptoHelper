@@ -58,25 +58,10 @@ export default function RoundResult({ cr, team, players, mine }) {
 }
 
 function Row({ label, cells, mark, status, statusColor }) {
-  const rowStyle = status
-    ? { ...s.row, borderLeft: `3px solid ${statusColor}`, paddingLeft: 10, borderRadius: 4 }
-    : s.row;
   return (
-    <div style={rowStyle}>
+    <div style={s.row}>
       <div style={status ? s.statusLabel : s.label}>
-        {label}{status && (
-          <span style={{
-            marginLeft: 7,
-            color: statusColor,
-            background: `${statusColor}22`,
-            border: `1px solid ${statusColor}55`,
-            borderRadius: 10,
-            padding: '1px 8px',
-            fontSize: 11,
-            fontWeight: 'bold',
-            letterSpacing: 0.4,
-          }}>{status}</span>
-        )}
+        {label}{status && <> <span style={{ color: statusColor }}>{status}</span></>}
       </div>
       <div style={s.grid}>
         {cells.map((c, i) => (
