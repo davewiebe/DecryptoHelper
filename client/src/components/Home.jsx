@@ -24,7 +24,8 @@ export default function Home() {
 
   return (
     <div style={s.page}>
-      <div style={s.card}>
+      <div style={s.main}>
+        <div style={s.card}>
         <h1 style={s.title}>DECRYPTO</h1>
         <p style={s.sub}>Multiplayer code-word deduction game</p>
 
@@ -73,6 +74,7 @@ export default function Home() {
             <button style={s.back} onClick={() => setMode(null)}>Back</button>
           </>
         )}
+        </div>
       </div>
 
       <footer style={s.footer}>
@@ -83,8 +85,9 @@ export default function Home() {
 }
 
 const s = {
-  page: { flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24, position: 'relative' },
-  footer: { position: 'absolute', bottom: 12, left: 0, right: 0, textAlign: 'center', fontSize: 11, opacity: 0.35 },
+  page: { flex: 1, display: 'flex', flexDirection: 'column', padding: 16 },
+  main: { flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' },
+  footer: { textAlign: 'center', fontSize: 11, opacity: 0.35, paddingTop: 8, flexShrink: 0 },
   card: {
     background: '#13131a',
     border: '1px solid #2a2a3a',
