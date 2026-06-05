@@ -39,13 +39,13 @@ export default function RoundResult({ cr, team, players, mine }) {
   // Decryption: this team decoding their own code. Success neutral (white),
   // failure highlighted.
   const decodeOk = arrEq(cr.decodingGuesses[team], code);
-  const decodePrefix = `${mine ? "Your team's" : `${cap(team)} team's`} decryption attempt:`;
+  const decodePrefix = `${mine ? "Your team's" : `${cap(team)} team's`} decryption:`;
   const decodeStatus = decodeOk ? '✓ Successful' : '✗ Unsuccessful';
 
   // Interception: the opponent guessing this team's code. Success highlighted
   // (they cracked it), failure neutral.
   const interceptOk = arrEq(cr.interceptionGuesses[opp], code);
-  const interceptPrefix = `${cap(opp)} team interception attempt:`;
+  const interceptPrefix = `${cap(opp)} team interception:`;
   const interceptStatus = interceptOk ? '✓ Successful' : '✗ Unsuccessful';
 
   return (
@@ -58,10 +58,25 @@ export default function RoundResult({ cr, team, players, mine }) {
 }
 
 function Row({ label, cells, mark, status, statusColor }) {
+  const rowStyle = status
+    ? { ...s.row, borderLeft: `3px solid ${statusColor}`, paddingLeft: 10, borderRadius: 4 }
+    : s.row;
   return (
-    <div style={s.row}>
+    <div style={rowStyle}>
       <div style={status ? s.statusLabel : s.label}>
-        {label}{status && <> <span style={{ color: statusColor }}>{status}</span></>}
+        {label}{status && (
+          <span style={{
+            marginLeft: 7,
+            color: statusColor,
+            background: `${statusColor}22`,
+            border: `1px solid ${statusColor}55`,
+            borderRadius: 10,
+            padding: '1px 8px',
+            fontSize: 11,
+            fontWeight: 'bold',
+            letterSpacing: 0.4,
+          }}>{status}</span>
+        )}
       </div>
       <div style={s.grid}>
         {cells.map((c, i) => (
