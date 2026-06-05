@@ -23,15 +23,6 @@ function Row({ cr, team }) {
       <Step done={cr.decodingSubmitted[team]} color={color} label="Decode" />
       <Sep />
       <Step done={cr.interceptionSubmitted[team]} color={color} label="Intercept" />
-      {cr.results && (
-        <>
-          <Sep />
-          <span style={s.result}>
-            <Tag ok={cr.results.interceptions[team]} label="Intercept" />
-            <Tag ok={cr.results.decodings[team]} label="Decode" />
-          </span>
-        </>
-      )}
     </div>
   );
 }
@@ -72,18 +63,9 @@ function Sep() {
   return <span style={s.sep}>›</span>;
 }
 
-function Tag({ ok, label }) {
-  return (
-    <span style={{ color: ok ? '#4caf50' : '#e53935', fontSize: 11, whiteSpace: 'nowrap' }}>
-      {ok ? '✓' : '✗'} {label}
-    </span>
-  );
-}
-
 const s = {
   wrap: { display: 'flex', flexDirection: 'column', gap: 8, width: '100%' },
   row: { display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 8, fontSize: 12, justifyContent: 'center' },
   step: { display: 'inline-flex', alignItems: 'center', gap: 5 },
   sep: { opacity: 0.3 },
-  result: { display: 'inline-flex', gap: 8 },
 };
