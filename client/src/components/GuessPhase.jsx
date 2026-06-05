@@ -79,7 +79,7 @@ export default function GuessPhase({ cr, myTeam, playerId, keywords, history, pl
         team={oppTeam}
         keywords={null}
         teamColor={TEAM_COLORS[oppTeam]}
-        title="OPPONENTS' CLUES BY COLUMN"
+        title={`${oppTeam.toUpperCase()} TEAM'S CLUES`}
       />
 
       <div style={s.panel}>

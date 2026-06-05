@@ -95,7 +95,7 @@ export default function CluePhase({ cr, myTeam, playerId, amClueGiver, secretCod
         team={oppTeam}
         keywords={null}
         teamColor={TEAM_COLORS[oppTeam]}
-        title="OPPONENTS' CLUES BY COLUMN"
+        title={`${oppTeam.toUpperCase()} TEAM'S CLUES`}
       />
     </div>
   );

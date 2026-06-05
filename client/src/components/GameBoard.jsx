@@ -99,7 +99,7 @@ export default function GameBoard({ room, playerId, roomCode, keywords, secretCo
             team={oppTeam}
             keywords={null}
             teamColor={TEAM_COLORS[oppTeam]}
-            title="OPPONENTS' CLUES BY COLUMN"
+            title={`${oppTeam.toUpperCase()} TEAM'S CLUES`}
           />
           <RoundResult cr={cr} team={oppTeam} players={room.players} />
         </>

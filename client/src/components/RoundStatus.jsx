@@ -21,7 +21,7 @@ function Row({ cr, team }) {
       <Step done={cr.cluesSubmitted[team]} color={color} label="Submit clues" />
       <Sep />
       <Step done={cr.decodingSubmitted[team]} color={color} label="Decrypt" />
-      <Sep />
+      <Sep symbol="+" />
       <Step done={cr.interceptionSubmitted[team]} color={color} label="Attempt intercept" />
     </div>
   );
@@ -59,8 +59,8 @@ function Box({ done, color }) {
   );
 }
 
-function Sep() {
-  return <span style={s.sep}>›</span>;
+function Sep({ symbol = '›' }) {
+  return <span style={s.sep}>{symbol}</span>;
 }
 
 const s = {
