@@ -9,7 +9,9 @@
     "socket.io-client": "^4.7.2"
   },
   "scripts": {
+    "prestart": "node scripts/buildInfo.js",
     "start": "react-scripts start",
+    "prebuild": "node scripts/buildInfo.js",
     "build": "react-scripts build"
   },
   "proxy": "http://localhost:3001",

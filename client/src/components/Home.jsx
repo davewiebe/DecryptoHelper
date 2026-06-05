@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import socket, { getClientId } from '../socket';
+import buildInfo from '../buildInfo.json';
 
 export default function Home() {
   const [name, setName] = useState('');
@@ -73,12 +74,17 @@ export default function Home() {
           </>
         )}
       </div>
+
+      <footer style={s.footer}>
+        Build {buildInfo.commit} · {buildInfo.date}
+      </footer>
     </div>
   );
 }
 
 const s = {
-  page: { flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 },
+  page: { flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24, position: 'relative' },
+  footer: { position: 'absolute', bottom: 12, left: 0, right: 0, textAlign: 'center', fontSize: 11, opacity: 0.35 },
   card: {
     background: '#13131a',
     border: '1px solid #2a2a3a',
