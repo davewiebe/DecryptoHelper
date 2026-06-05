@@ -92,6 +92,53 @@ function seedTestRoom(room, socketId, clientId, hostId) {
   return [w2, b1, b2];
 }
 
+// Like seedTestRoom but starts in reveal phase with a completed round where
+// White succeeds at both decryption and interception, Black fails both.
+function seedTestRoom2(room, socketId, clientId, hostId) {
+  room.players.get(hostId).team = 'white';
+  const w2 = addPlayer(room.code, socketId, clientId, 'White 2').playerId;
+  const b1 = addPlayer(room.code, socketId, clientId, 'Black 1').playerId;
+  const b2 = addPlayer(room.code, socketId, clientId, 'Black 2').playerId;
+  room.players.get(w2).team = 'white';
+  room.players.get(b1).team = 'black';
+  room.players.get(b2).team = 'black';
+  room.teams.white.keywords = ['APPLE', 'RIVER', 'TIGER', 'PLANET'];
+  room.teams.black.keywords = ['GUITAR', 'CASTLE', 'ROCKET', 'GARDEN'];
+
+  // White code [2,4,1] = RIVER, PLANET, APPLE
+  // Black code [3,1,4] = ROCKET, GUITAR, GARDEN
+  const whiteCode = [2, 4, 1];
+  const blackCode = [3, 1, 4];
+  const cr = {
+    number: 1,
+    codes: { white: whiteCode, black: blackCode },
+    clueGivers: { white: hostId, black: b1 },
+    clues: { white: ['flow', 'orbit', 'fruit'], black: ['launch', 'strings', 'grow'] },
+    cluesSubmitted: { white: true, black: true },
+    interceptionGuesses: { white: [3, 1, 4], black: [1, 3, 2] }, // white correct, black wrong
+    interceptionSubmitted: { white: true, black: true },
+    decodingGuesses: { white: [2, 4, 1], black: [1, 2, 3] },     // white correct, black wrong
+    decodingSubmitted: { white: true, black: true },
+    results: {
+      interceptions: { white: true, black: false },
+      decodings: { white: true, black: false },
+      tokens: {
+        white: { interceptions: 1, miscommunications: 0 },
+        black: { interceptions: 0, miscommunications: 1 },
+      },
+    },
+  };
+
+  room.round = 1;
+  room.currentRound = cr;
+  room.phase = 'reveal';
+  room.teams.white.interceptions = 1;
+  room.teams.black.miscommunications = 1;
+  room.history = [{ type: 'round', round: 1, summary: cr, ts: Date.now() }];
+
+  return [w2, b1, b2];
+}
+
 function registerHandlers(io, socket) {
   let currentRoom = null;
   let clientId = null; // stable per-device id, survives socket reconnects
@@ -134,8 +181,12 @@ function registerHandlers(io, socket) {
     owned.add(playerId);
     socket.emit('room:joined', { code: room.code, playerId });
 
-    if (seed) {
+    if (seed === 'davetest') {
       const extras = seedTestRoom(room, socket.id, clientId, playerId);
+      extras.forEach((id) => owned.add(id));
+      socket.emit('room:seededPlayers', { playerIds: extras });
+    } else if (seed === 'davetest2') {
+      const extras = seedTestRoom2(room, socket.id, clientId, playerId);
       extras.forEach((id) => owned.add(id));
       socket.emit('room:seededPlayers', { playerIds: extras });
     }
