@@ -9,8 +9,9 @@ export default function Home() {
 
   const create = () => {
     if (!name.trim()) return;
-    // Typing "Davetest" spins up the pre-seeded 4-player test room.
-    const seed = name.trim().toLowerCase() === 'davetest';
+    // Typing "Davetest" / "Davetest2" spins up pre-seeded test rooms.
+    const lower = name.trim().toLowerCase();
+    const seed = lower === 'davetest' || lower === 'davetest2' ? lower : false;
     socket.emit('room:create', { name: name.trim(), seed, clientId: getClientId() });
   };
 
