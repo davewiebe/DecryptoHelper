@@ -95,7 +95,7 @@ export default function CluePhase({ cr, myTeam, playerId, amClueGiver, secretCod
         team={oppTeam}
         keywords={null}
         teamColor={TEAM_COLORS[oppTeam]}
-        title="INTERCEPTION NOTES — OPPONENT CLUES BY COLUMN"
+        title="OPPONENTS' CLUES BY COLUMN"
       />
     </div>
   );

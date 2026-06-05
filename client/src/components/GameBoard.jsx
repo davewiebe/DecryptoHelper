@@ -71,6 +71,7 @@ export default function GameBoard({ room, playerId, roomCode, keywords, secretCo
             playerId={playerId}
             keywords={keywords}
             history={room.history}
+            players={room.players}
           />
         )}
         {phase === 'reveal' && (
@@ -98,7 +99,7 @@ export default function GameBoard({ room, playerId, roomCode, keywords, secretCo
             team={oppTeam}
             keywords={null}
             teamColor={TEAM_COLORS[oppTeam]}
-            title="INTERCEPTION NOTES — OPPONENT CLUES BY COLUMN"
+            title="OPPONENTS' CLUES BY COLUMN"
           />
           <RoundResult cr={cr} team={oppTeam} />
         </>

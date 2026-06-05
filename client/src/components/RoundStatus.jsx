@@ -18,11 +18,11 @@ function Row({ cr, team }) {
   const color = TEAM_COLORS[team];
   return (
     <div style={s.row}>
-      <Step done={cr.cluesSubmitted[team]} color={color} label="Submit clue" />
+      <Step done={cr.cluesSubmitted[team]} color={color} label="Submit clues" />
       <Sep />
-      <Step done={cr.decodingSubmitted[team]} color={color} label="Decode" />
+      <Step done={cr.decodingSubmitted[team]} color={color} label="Decrypt" />
       <Sep />
-      <Step done={cr.interceptionSubmitted[team]} color={color} label="Intercept" />
+      <Step done={cr.interceptionSubmitted[team]} color={color} label="Attempt intercept" />
     </div>
   );
 }
