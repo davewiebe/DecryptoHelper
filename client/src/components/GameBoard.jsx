@@ -43,9 +43,7 @@ export default function GameBoard({ room, playerId, roomCode, keywords, secretCo
       {/* ROUND STATUS — phase header + per-team progress (you / opponent) */}
       {(phase === 'cluing' || phase === 'guessing' || phase === 'reveal') && cr && (
         <div style={s.roundStatus}>
-          <h2 style={s.phaseHeader}>
-            {phase === 'cluing' ? 'CLUE PHASE' : phase === 'guessing' ? 'GUESSING PHASE' : 'RESULTS'} — Round {cr.number}
-          </h2>
+          <h2 style={s.phaseHeader}>Round {cr.number}</h2>
           {myTeam && <RoundStatus cr={cr} myTeam={myTeam} oppTeam={oppTeam} />}
         </div>
       )}
