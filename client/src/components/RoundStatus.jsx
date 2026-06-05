@@ -8,24 +8,30 @@ export default function RoundStatus({ cr, myTeam, oppTeam }) {
   if (!cr) return null;
   return (
     <div style={s.wrap}>
-      <Row cr={cr} team={myTeam} label="You" />
-      <Row cr={cr} team={oppTeam} label="Opponent" />
+      <Row cr={cr} team={myTeam} />
+      <Row cr={cr} team={oppTeam} />
     </div>
   );
 }
 
-function Row({ cr, team, label }) {
+function Row({ cr, team }) {
   const color = TEAM_COLORS[team];
   return (
     <div style={s.row}>
-      <span style={{ ...s.team, color }}>{label}</span>
       <Step done={cr.cluesSubmitted[team]} color={color} label="Submit clue" />
       <Sep />
       <Step done={cr.decodingSubmitted[team]} color={color} label="Decode" />
       <Sep />
       <Step done={cr.interceptionSubmitted[team]} color={color} label="Intercept" />
-      <Sep />
-      <Result results={cr.results} team={team} />
+      {cr.results && (
+        <>
+          <Sep />
+          <span style={s.result}>
+            <Tag ok={cr.results.interceptions[team]} label="Intercept" />
+            <Tag ok={cr.results.decodings[team]} label="Decode" />
+          </span>
+        </>
+      )}
     </div>
   );
 }
@@ -66,16 +72,6 @@ function Sep() {
   return <span style={s.sep}>›</span>;
 }
 
-function Result({ results, team }) {
-  if (!results) return <span style={s.pending}>Result: —</span>;
-  return (
-    <span style={s.result}>
-      <Tag ok={results.interceptions[team]} label="Intercept" />
-      <Tag ok={results.decodings[team]} label="Decode" />
-    </span>
-  );
-}
-
 function Tag({ ok, label }) {
   return (
     <span style={{ color: ok ? '#4caf50' : '#e53935', fontSize: 11, whiteSpace: 'nowrap' }}>
@@ -87,9 +83,7 @@ function Tag({ ok, label }) {
 const s = {
   wrap: { display: 'flex', flexDirection: 'column', gap: 8, width: '100%' },
   row: { display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 8, fontSize: 12, justifyContent: 'center' },
-  team: { fontWeight: 'bold', letterSpacing: 1, fontSize: 11, minWidth: 60 },
   step: { display: 'inline-flex', alignItems: 'center', gap: 5 },
   sep: { opacity: 0.3 },
-  pending: { opacity: 0.4 },
   result: { display: 'inline-flex', gap: 8 },
 };
