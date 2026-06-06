@@ -30,7 +30,7 @@ export default function CluePhase({ cr, myTeam, playerId, amClueGiver, secretCod
         team={myTeam}
         keywords={keywords}
         teamColor={TEAM_COLORS[myTeam]}
-        title="YOUR KEYWORDS & CLUE HISTORY"
+        title="YOUR KEYWORDS & CLUES"
       />
 
       {/* Nobody has claimed the clue-giver role yet */}

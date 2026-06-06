@@ -33,7 +33,7 @@ export default function GuessPhase({ cr, myTeam, playerId, keywords, history, pl
         team={myTeam}
         keywords={keywords}
         teamColor={TEAM_COLORS[myTeam]}
-        title="YOUR KEYWORDS & CLUE HISTORY"
+        title="YOUR KEYWORDS & CLUES"
       />
 
       <div style={s.panel}>
