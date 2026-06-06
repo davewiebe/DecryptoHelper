@@ -64,7 +64,7 @@ function Row({ label, cells, mark, status, statusColor }) {
     <div style={s.row}>
       <div style={s.label}>
         {label}
-        {status && <span style={{ color: statusColor, fontWeight: 'bold' }}>: {status}</span>}
+        {status && <>: <span style={{ color: statusColor, fontWeight: 'bold' }}>{status}</span></>}
       </div>
       <div style={s.grid}>
         {cells.map((c, i) => (
