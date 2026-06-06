@@ -41,7 +41,7 @@ export default function GameBoard({ room, playerId, roomCode, keywords, secretCo
       <ScoreBar teams={room.teams} />
 
       {/* ROUND STATUS — phase header + per-team progress (you / opponent) */}
-      {(phase === 'cluing' || phase === 'guessing' || phase === 'reveal') && cr && (
+      {(phase === 'cluing' || phase === 'guessing' || phase === 'reveal' || phase === 'ended') && cr && (
         <div style={s.roundStatus}>
           <h2 style={s.phaseHeader}>Round {cr.number}</h2>
           {myTeam && <RoundStatus cr={cr} myTeam={myTeam} oppTeam={oppTeam} />}
@@ -77,33 +77,12 @@ export default function GameBoard({ room, playerId, roomCode, keywords, secretCo
         {phase === 'reveal' && (
           <RevealPhase cr={cr} isHost={isHost} playerId={playerId} />
         )}
-        {phase === 'ended' && (
-          <EndedPhase room={room} myTeam={myTeam} history={room.history} />
-        )}
+        {phase === 'ended' && <EndedPhase room={room} myTeam={myTeam} />}
       </div>
 
-      {myTeam && phase === 'ended' && (
-        <>
-          <ClueTracker
-            history={room.history}
-            team={myTeam}
-            keywords={keywords}
-            teamColor={TEAM_COLORS[myTeam]}
-            title="YOUR KEYWORDS & CLUES"
-          />
-          <ClueTracker
-            history={room.history}
-            team={oppTeam}
-            keywords={null}
-            teamColor={TEAM_COLORS[oppTeam]}
-            title={`${oppTeam.toUpperCase()} TEAM'S CLUES`}
-          />
-        </>
-      )}
-
-      {/* Reveal: worksheets with this round's results beneath each
-          (cluing/guessing render their own worksheets inline). */}
-      {myTeam && phase === 'reveal' && (
+      {/* Reveal & end screens share the same layout: worksheets with this
+          round's results beneath each (cluing/guessing render theirs inline). */}
+      {myTeam && (phase === 'reveal' || phase === 'ended') && (
         <>
           <ClueTracker
             history={room.history}
