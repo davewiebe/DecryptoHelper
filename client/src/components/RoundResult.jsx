@@ -1,22 +1,15 @@
 import React from 'react';
 
-const WHITE = '#e8e8e8';
-const RED = '#e53935';
-const GREEN = '#4caf50';
-
 const arrEq = (a, b) =>
   Array.isArray(a) && Array.isArray(b) && a.length === b.length && a.every((v, i) => v === b[i]);
 const cap = (t) => (t === 'white' ? 'White' : 'Black');
 
 // Round results for one team, laid out in the same 4 keyword columns as the
 // team's worksheet so each clue lines up under its column.
-//  - <giver>'s clues:     the real code -> column
-//  - decryption attempt:  this team decrypting its own clues
+//  - <giver>'s clues:      the real code -> column
+//  - decryption attempt:   this team decrypting its own clues
 //  - interception attempt: the opponent intercepting this team's code
-//
-// `mine` = this is the viewing player's team block. The highlight colour for
-// "bad for me / good for me" outcomes is red in your block, green in the
-// opponent's.
+// All three row labels share one neutral style; wrong clue placements are red.
 export default function RoundResult({ cr, team, players, mine }) {
   if (!cr || !cr.codes || !cr.codes[team]) return null;
 
@@ -24,7 +17,6 @@ export default function RoundResult({ cr, team, players, mine }) {
   const clues = cr.clues[team] || [];
   const code = cr.codes[team] || [];
   const giverName = (players || []).find((p) => p.id === cr.clueGivers[team])?.name;
-  const highlight = mine ? RED : GREEN;
 
   // Place each clue into its assigned column (guesses are 3 distinct columns,
   // so at most one clue per column).
@@ -36,33 +28,26 @@ export default function RoundResult({ cr, team, players, mine }) {
     return cells;
   };
 
-  // Decryption: this team decoding their own code. Success neutral (white),
-  // failure highlighted.
   const decodeOk = arrEq(cr.decodingGuesses[team], code);
-  const decodePrefix = `${mine ? "Your team's" : `${cap(team)} team's`} decryption:`;
-  const decodeStatus = decodeOk ? '✓ Successful' : '✗ Unsuccessful';
-
-  // Interception: the opponent guessing this team's code. Success highlighted
-  // (they cracked it), failure neutral.
   const interceptOk = arrEq(cr.interceptionGuesses[opp], code);
-  const interceptPrefix = `${cap(opp)} team interception:`;
-  const interceptStatus = interceptOk ? '✓ Successful' : '✗ Unsuccessful';
+
+  const cluesLabel = `${giverName ? `${giverName}'s` : "Clue giver's"} clues`;
+  const decodeLabel = `${mine ? "Your team's" : `${cap(team)} team's`} decryption: ${decodeOk ? '✓ Successful' : '✗ Unsuccessful'}`;
+  const interceptLabel = `${cap(opp)} team interception: ${interceptOk ? '✓ Successful' : '✗ Unsuccessful'}`;
 
   return (
     <div style={s.wrap}>
-      <Row label={`${giverName ? `${giverName}'s` : "Clue giver's"} clues`} cells={columns(code)} mark={false} />
-      <Row label={decodePrefix} status={decodeStatus} statusColor={decodeOk ? WHITE : highlight} cells={columns(cr.decodingGuesses[team])} mark />
-      <Row label={interceptPrefix} status={interceptStatus} statusColor={interceptOk ? highlight : WHITE} cells={columns(cr.interceptionGuesses[opp])} mark />
+      <Row label={cluesLabel} cells={columns(code)} mark={false} />
+      <Row label={decodeLabel} cells={columns(cr.decodingGuesses[team])} mark />
+      <Row label={interceptLabel} cells={columns(cr.interceptionGuesses[opp])} mark />
     </div>
   );
 }
 
-function Row({ label, cells, mark, status, statusColor }) {
+function Row({ label, cells, mark }) {
   return (
     <div style={s.row}>
-      <div style={status ? s.statusLabel : s.label}>
-        {label}{status && <> <span style={{ color: statusColor }}>{status}</span></>}
-      </div>
+      <div style={s.label}>{label}</div>
       <div style={s.grid}>
         {cells.map((c, i) => (
           <div key={i} style={s.cell}>
@@ -81,8 +66,7 @@ function Row({ label, cells, mark, status, statusColor }) {
 const s = {
   wrap: { background: '#0a0a0f', border: '1px solid #1e1e2e', borderRadius: 8, padding: 14, display: 'flex', flexDirection: 'column', gap: 10 },
   row: { display: 'flex', flexDirection: 'column', gap: 4 },
-  label: { fontSize: 10, letterSpacing: 1, opacity: 0.5 },
-  statusLabel: { fontSize: 12, fontWeight: 'bold' },
+  label: { fontSize: 10, letterSpacing: 1, opacity: 0.5, textTransform: 'uppercase' },
   grid: { display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8 },
   cell: { border: '1px solid #1e1e2e', borderRadius: 6, padding: 8, minHeight: 34, display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center', fontSize: 12, wordBreak: 'break-word' },
   wrong: { color: '#e53935' },
