@@ -20,18 +20,6 @@ export default function EndedPhase({ room, myTeam, history }) {
         )}
       </div>
 
-      <div style={s.finalScores}>
-        {['white', 'black'].map((team) => (
-          <div key={team} style={s.scoreCard}>
-            <div style={{ ...s.teamName, color: TEAM_COLORS[team] }}>{team.toUpperCase()}</div>
-            <div style={s.scoreRow}>
-              <span style={{ color: '#4caf50' }}>{room.teams[team].interceptions} interceptions</span>
-              <span style={{ color: '#e53935' }}>{room.teams[team].miscommunications} miscommunications</span>
-            </div>
-          </div>
-        ))}
-      </div>
-
       <div style={s.historySection}>
         <div style={s.histTitle}>ROUND HISTORY</div>
         {history.filter((h) => h.type === 'round').map((h) => (
@@ -58,10 +46,6 @@ const s = {
   banner: { textAlign: 'center', padding: 32, background: '#13131a', border: '1px solid #2a2a3a', borderRadius: 12 },
   winnerText: { fontSize: 48, fontWeight: 'bold', letterSpacing: 8 },
   youLabel: { fontSize: 18, marginTop: 8, letterSpacing: 2 },
-  finalScores: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 },
-  scoreCard: { background: '#13131a', border: '1px solid #2a2a3a', borderRadius: 10, padding: 20, display: 'flex', flexDirection: 'column', gap: 10 },
-  teamName: { fontWeight: 'bold', letterSpacing: 3, fontSize: 13 },
-  scoreRow: { display: 'flex', flexDirection: 'column', gap: 4, fontSize: 13 },
   historySection: { display: 'flex', flexDirection: 'column', gap: 10 },
   histTitle: { fontSize: 11, letterSpacing: 3, opacity: 0.4 },
   histCard: { background: '#13131a', border: '1px solid #2a2a3a', borderRadius: 8, padding: 14, display: 'flex', flexDirection: 'column', gap: 6 },

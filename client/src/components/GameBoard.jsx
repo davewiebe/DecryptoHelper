@@ -82,6 +82,25 @@ export default function GameBoard({ room, playerId, roomCode, keywords, secretCo
         )}
       </div>
 
+      {myTeam && phase === 'ended' && (
+        <>
+          <ClueTracker
+            history={room.history}
+            team={myTeam}
+            keywords={keywords}
+            teamColor={TEAM_COLORS[myTeam]}
+            title="YOUR KEYWORDS & CLUES"
+          />
+          <ClueTracker
+            history={room.history}
+            team={oppTeam}
+            keywords={null}
+            teamColor={TEAM_COLORS[oppTeam]}
+            title={`${oppTeam.toUpperCase()} TEAM'S CLUES`}
+          />
+        </>
+      )}
+
       {/* Reveal: worksheets with this round's results beneath each
           (cluing/guessing render their own worksheets inline). */}
       {myTeam && phase === 'reveal' && (
