@@ -131,6 +131,7 @@ function roomView(room) {
     maxRounds: room.maxRounds,
     currentRound,
     history: room.history,
+    winner: room.winner || null,
   };
 }
 
