@@ -15,8 +15,24 @@ export default function CluePhase({ cr, myTeam, playerId, amClueGiver, secretCod
   const giverName = (players || []).find((p) => p.id === claimedBy)?.name;
   const oppTeam = myTeam === 'white' ? 'black' : 'white';
 
+  const usedInHistory = new Set(
+    (history || [])
+      .filter((h) => h.type === 'round')
+      .flatMap((h) => h.summary?.clues?.[myTeam] || [])
+      .map((c) => c.trim().toLowerCase())
+      .filter(Boolean)
+  );
+  const trimmedClues = clues.map((c) => c.trim().toLowerCase());
+  const clueErrors = trimmedClues.map((val, i) => {
+    if (!val) return null;
+    if (trimmedClues.some((v, j) => j !== i && v === val)) return 'Duplicate clue';
+    if (usedInHistory.has(val)) return 'Already used this game';
+    return null;
+  });
+  const hasClueError = clueErrors.some(Boolean);
+
   const submit = () => {
-    if (clues.some((c) => !c.trim())) return;
+    if (clues.some((c) => !c.trim()) || hasClueError) return;
     socket.emit('game:submitClues', { playerId, clues });
     setSubmitted(true);
   };
@@ -49,23 +65,26 @@ export default function CluePhase({ cr, myTeam, playerId, amClueGiver, secretCod
             {secretCode.map((n, i) => (
               <div key={i} style={s.clueRow}>
                 <span style={s.clueNum}>{n}</span>
-                <input
-                  style={s.clueInput}
-                  placeholder={`Clue for "${keywords[n - 1] || n}"`}
-                  value={clues[i]}
-                  onChange={(e) => {
-                    const next = [...clues];
-                    next[i] = e.target.value;
-                    setClues(next);
-                  }}
-                  onKeyDown={(e) => e.key === 'Enter' && i === 2 && submit()}
-                />
+                <div style={s.inputWrap}>
+                  <input
+                    style={{ ...s.clueInput, ...(clueErrors[i] ? s.clueInputError : {}) }}
+                    placeholder={`Clue for "${keywords[n - 1] || n}"`}
+                    value={clues[i]}
+                    onChange={(e) => {
+                      const next = [...clues];
+                      next[i] = e.target.value;
+                      setClues(next);
+                    }}
+                    onKeyDown={(e) => e.key === 'Enter' && i === 2 && submit()}
+                  />
+                  {clueErrors[i] && <div style={s.errorMsg}>{clueErrors[i]}</div>}
+                </div>
               </div>
             ))}
             <button
-              style={{ ...s.submitBtn, opacity: clues.every((c) => c.trim()) ? 1 : 0.4 }}
+              style={{ ...s.submitBtn, opacity: clues.every((c) => c.trim()) && !hasClueError ? 1 : 0.4 }}
               onClick={submit}
-              disabled={clues.some((c) => !c.trim())}
+              disabled={clues.some((c) => !c.trim()) || hasClueError}
             >
               Submit Clues
             </button>
@@ -109,9 +128,12 @@ const s = {
   codeBox: { background: '#13131a', border: '1px solid #2a2a3a', borderRadius: 10, padding: 20, display: 'flex', flexDirection: 'column', gap: 16 },
   codeLabel: { fontSize: 12, opacity: 0.6, letterSpacing: 1 },
   clueForm: { display: 'flex', flexDirection: 'column', gap: 10 },
-  clueRow: { display: 'flex', alignItems: 'center', gap: 12 },
-  clueNum: { fontSize: 20, fontWeight: 'bold', color: '#a0c4ff', width: 24, textAlign: 'center' },
-  clueInput: { flex: 1, background: '#0a0a0f', border: '1px solid #3a3a5a', borderRadius: 6, color: '#e0e0e0', padding: '9px 12px', fontFamily: 'inherit', fontSize: 15 },
+  clueRow: { display: 'flex', alignItems: 'flex-start', gap: 12 },
+  clueNum: { fontSize: 20, fontWeight: 'bold', color: '#a0c4ff', width: 24, textAlign: 'center', paddingTop: 8 },
+  inputWrap: { flex: 1, display: 'flex', flexDirection: 'column', gap: 3 },
+  clueInput: { background: '#0a0a0f', border: '1px solid #3a3a5a', borderRadius: 6, color: '#e0e0e0', padding: '9px 12px', fontFamily: 'inherit', fontSize: 15 },
+  clueInputError: { borderColor: '#e53935' },
+  errorMsg: { fontSize: 11, color: '#e53935' },
   submitBtn: { background: '#3a6fd8', color: '#fff', border: 'none', borderRadius: 6, padding: '12px 0', cursor: 'pointer', fontFamily: 'inherit', fontSize: 14, letterSpacing: 1 },
   waiting: { background: '#13131a', border: '1px solid #2a2a3a', borderRadius: 10, padding: 24, textAlign: 'center', opacity: 0.6, fontSize: 14 },
 };
