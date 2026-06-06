@@ -40,7 +40,7 @@ export default function Lobby({ room, playerId, onLeave }) {
           <span style={s.label}>ROOM</span>
           <span style={s.code}>{room.code}</span>
         </div>
-        <button style={s.leaveBtn} onClick={onLeave}>Leave</button>
+        <button style={s.leaveBtn} onClick={() => window.confirm('Leave the room?') && onLeave()}>Leave</button>
       </div>
 
       <div style={s.teams}>

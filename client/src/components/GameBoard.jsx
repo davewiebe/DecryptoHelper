@@ -34,7 +34,7 @@ export default function GameBoard({ room, playerId, roomCode, keywords, secretCo
             {myTeam.toUpperCase()} TEAM
           </span>
         )}
-        <button style={s.leaveBtn} onClick={onLeave}>Leave</button>
+        <button style={s.leaveBtn} onClick={() => window.confirm('Leave the game?') && onLeave()}>Leave</button>
       </div>
 
       {/* GAME STATUS */}
