@@ -11,7 +11,7 @@ export default function Home() {
     if (!name.trim()) return;
     // Typing "Davetest" / "Davetest2" / "Davetest3" spins up pre-seeded test rooms.
     const lower = name.trim().toLowerCase();
-    const seed = ['davetest', 'davetest2', 'davetest3'].includes(lower) ? lower : false;
+    const seed = ['davetest', 'davetest2', 'davetest3', 'davetest11'].includes(lower) ? lower : false;
     socket.emit('room:create', { name: name.trim(), seed, clientId: getClientId() });
   };
 
