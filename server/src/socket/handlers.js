@@ -191,7 +191,8 @@ function seedTestRoom3(room, socketId, clientId, hostId) {
   return [w2, b1, b2];
 }
 
-// Reveal phase: both teams intercept each other AND both fail their own decryption — a tie.
+// Ended game: max rounds hit with 1 interception each and no miscommunications → draw.
+// Round 1: White intercepts Black. Round 2: Black intercepts White.
 function seedTestRoom11(room, socketId, clientId, hostId) {
   room.players.get(hostId).team = 'white';
   const w2 = addPlayer(room.code, socketId, clientId, 'White 2').playerId;
@@ -203,39 +204,54 @@ function seedTestRoom11(room, socketId, clientId, hostId) {
   room.teams.white.keywords = ['APPLE', 'RIVER', 'TIGER', 'PLANET'];
   room.teams.black.keywords = ['GUITAR', 'CASTLE', 'ROCKET', 'GARDEN'];
 
-  // White code [2,4,1] = RIVER, PLANET, APPLE
-  // Black code [3,1,4] = ROCKET, GUITAR, GARDEN
-  // Both teams crack the other's code; both mis-decrypt their own.
-  const whiteCode = [2, 4, 1];
-  const blackCode = [3, 1, 4];
-  const cr = {
+  // Round 1: White [2,4,1]=RIVER,PLANET,APPLE  Black [3,1,4]=ROCKET,GUITAR,GARDEN
+  // White intercepts Black ✓; Black does not intercept White ✗; both decode correctly.
+  const r1 = {
     number: 1,
-    codes: { white: whiteCode, black: blackCode },
+    codes: { white: [2, 4, 1], black: [3, 1, 4] },
     clueGivers: { white: hostId, black: b1 },
     clues: { white: ['flow', 'orbit', 'fruit'], black: ['launch', 'strings', 'grow'] },
     cluesSubmitted: { white: true, black: true },
-    interceptionGuesses: { white: [3, 1, 4], black: [2, 4, 1] }, // both correct
+    interceptionGuesses: { white: [3, 1, 4], black: [1, 2, 3] }, // white ✓, black ✗
     interceptionSubmitted: { white: true, black: true },
-    decodingGuesses: { white: [1, 3, 2], black: [4, 2, 1] },     // both wrong
+    decodingGuesses: { white: [2, 4, 1], black: [3, 1, 4] },     // both ✓
     decodingSubmitted: { white: true, black: true },
     results: {
-      interceptions: { white: true, black: true },
-      decodings: { white: false, black: false },
-      tokens: {
-        white: { interceptions: 1, miscommunications: 1 },
-        black: { interceptions: 1, miscommunications: 1 },
-      },
+      interceptions: { white: true, black: false },
+      decodings: { white: true, black: true },
+      tokens: { white: { interceptions: 1, miscommunications: 0 }, black: { interceptions: 0, miscommunications: 0 } },
     },
   };
 
-  room.round = 1;
-  room.currentRound = cr;
-  room.phase = 'reveal';
+  // Round 2: White [1,3,2]=APPLE,TIGER,RIVER  Black [4,2,1]=GARDEN,CASTLE,GUITAR
+  // Black intercepts White ✓; White does not intercept Black ✗; both decode correctly.
+  const r2 = {
+    number: 2,
+    codes: { white: [1, 3, 2], black: [4, 2, 1] },
+    clueGivers: { white: hostId, black: b1 },
+    clues: { white: ['seeds', 'stripes', 'current'], black: ['hedge', 'fortress', 'chord'] },
+    cluesSubmitted: { white: true, black: true },
+    interceptionGuesses: { white: [1, 2, 3], black: [1, 3, 2] }, // white ✗, black ✓
+    interceptionSubmitted: { white: true, black: true },
+    decodingGuesses: { white: [1, 3, 2], black: [4, 2, 1] },     // both ✓
+    decodingSubmitted: { white: true, black: true },
+    results: {
+      interceptions: { white: false, black: true },
+      decodings: { white: true, black: true },
+      tokens: { white: { interceptions: 1, miscommunications: 0 }, black: { interceptions: 1, miscommunications: 0 } },
+    },
+  };
+
+  room.round = room.maxRounds;
+  room.currentRound = r2;
+  room.phase = 'ended';
+  room.winner = 'draw';
   room.teams.white.interceptions = 1;
-  room.teams.white.miscommunications = 1;
   room.teams.black.interceptions = 1;
-  room.teams.black.miscommunications = 1;
-  room.history = [{ type: 'round', round: 1, summary: cr, ts: Date.now() }];
+  room.history = [
+    { type: 'round', round: 2, summary: r2, ts: Date.now() },
+    { type: 'round', round: 1, summary: r1, ts: Date.now() - 1000 },
+  ];
 
   return [w2, b1, b2];
 }
