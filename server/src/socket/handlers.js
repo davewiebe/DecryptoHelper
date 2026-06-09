@@ -256,6 +256,71 @@ function seedTestRoom11(room, socketId, clientId, hostId) {
   return [w2, b1, b2];
 }
 
+// Ended game: White wins with 2 interceptions but also accumulates 2 miscommunications.
+// Both rounds: White intercepts Black correctly, but White's own team fails to decode (miscommunication).
+function seedTestRoom22(room, socketId, clientId, hostId) {
+  room.players.get(hostId).team = 'white';
+  const w2 = addPlayer(room.code, socketId, clientId, 'White 2').playerId;
+  const b1 = addPlayer(room.code, socketId, clientId, 'Black 1').playerId;
+  const b2 = addPlayer(room.code, socketId, clientId, 'Black 2').playerId;
+  room.players.get(w2).team = 'white';
+  room.players.get(b1).team = 'black';
+  room.players.get(b2).team = 'black';
+  room.teams.white.keywords = ['APPLE', 'RIVER', 'TIGER', 'PLANET'];
+  room.teams.black.keywords = ['GUITAR', 'CASTLE', 'ROCKET', 'GARDEN'];
+
+  // Round 1: White [2,4,1]=RIVER,PLANET,APPLE  Black [3,1,4]=ROCKET,GUITAR,GARDEN
+  // White intercepts Black ✓; Black fails to intercept White ✗; White miscommunicates ✗; Black decodes correctly ✓
+  const r1 = {
+    number: 1,
+    codes: { white: [2, 4, 1], black: [3, 1, 4] },
+    clueGivers: { white: hostId, black: b1 },
+    clues: { white: ['flow', 'orbit', 'fruit'], black: ['launch', 'strings', 'grow'] },
+    cluesSubmitted: { white: true, black: true },
+    interceptionGuesses: { white: [3, 1, 4], black: [1, 3, 2] }, // white ✓, black ✗
+    interceptionSubmitted: { white: true, black: true },
+    decodingGuesses: { white: [1, 2, 3], black: [3, 1, 4] },     // white ✗ (miscommunication), black ✓
+    decodingSubmitted: { white: true, black: true },
+    results: {
+      interceptions: { white: true, black: false },
+      decodings: { white: false, black: true },
+      tokens: { white: { interceptions: 1, miscommunications: 1 }, black: { interceptions: 0, miscommunications: 0 } },
+    },
+  };
+
+  // Round 2: White [1,3,2]=APPLE,TIGER,RIVER  Black [4,2,1]=GARDEN,CASTLE,GUITAR
+  // White intercepts Black ✓; Black fails to intercept White ✗; White miscommunicates again ✗; Black decodes correctly ✓
+  const r2 = {
+    number: 2,
+    codes: { white: [1, 3, 2], black: [4, 2, 1] },
+    clueGivers: { white: hostId, black: b1 },
+    clues: { white: ['seeds', 'stripes', 'current'], black: ['hedge', 'fortress', 'chord'] },
+    cluesSubmitted: { white: true, black: true },
+    interceptionGuesses: { white: [4, 2, 1], black: [2, 1, 3] }, // white ✓, black ✗
+    interceptionSubmitted: { white: true, black: true },
+    decodingGuesses: { white: [3, 1, 2], black: [4, 2, 1] },     // white ✗ (miscommunication), black ✓
+    decodingSubmitted: { white: true, black: true },
+    results: {
+      interceptions: { white: true, black: false },
+      decodings: { white: false, black: true },
+      tokens: { white: { interceptions: 2, miscommunications: 2 }, black: { interceptions: 0, miscommunications: 0 } },
+    },
+  };
+
+  room.round = 2;
+  room.currentRound = r2;
+  room.phase = 'ended';
+  room.winner = 'white';
+  room.teams.white.interceptions = 2;
+  room.teams.white.miscommunications = 2;
+  room.history = [
+    { type: 'round', round: 2, summary: r2, ts: Date.now() },
+    { type: 'round', round: 1, summary: r1, ts: Date.now() - 1000 },
+  ];
+
+  return [w2, b1, b2];
+}
+
 function registerHandlers(io, socket) {
   let currentRoom = null;
   let clientId = null; // stable per-device id, survives socket reconnects
@@ -312,6 +377,10 @@ function registerHandlers(io, socket) {
       socket.emit('room:seededPlayers', { playerIds: extras });
     } else if (seed === 'davetest11') {
       const extras = seedTestRoom11(room, socket.id, clientId, playerId);
+      extras.forEach((id) => owned.add(id));
+      socket.emit('room:seededPlayers', { playerIds: extras });
+    } else if (seed === 'davetest22') {
+      const extras = seedTestRoom22(room, socket.id, clientId, playerId);
       extras.forEach((id) => owned.add(id));
       socket.emit('room:seededPlayers', { playerIds: extras });
     }
